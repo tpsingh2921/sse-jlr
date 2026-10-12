@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f8f2">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Letterhead Documents | Shree Shantinath Enterprises</title>
+    <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css?v=5">
+  </head>
+  <body class="letterhead-admin">
+    <header class="site-header">
+      <div class="nav-wrap">
+        <a class="brand" href="/" aria-label="Shree Shantinath Enterprises home">
+          <span class="brand-mark" aria-hidden="true"><img src="/images/brand-mark.svg" alt="" width="48" height="48"></span>
+          <span class="brand-name">SHREE SHANTINATH <b>ENTERPRISES</b></span>
+        </a>
+        <div class="admin-header-actions">
+          <a class="admin-back-link" href="/">Back to website</a>
+          <form action="/letterhead/logout" method="post"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="admin-link-button" type="submit">Sign out</button></form>
+        </div>
+      </div>
+    </header>
+    <main class="admin-main admin-main-wide">
+      <div class="admin-page-heading">
+        <div><p class="eyebrow"><span class="eyebrow-line"></span> PRIVATE DOCUMENT AREA</p><h1>Your <span>documents.</span></h1><p class="admin-description">Create, update and download documents on the company letterhead.</p></div>
+        <div class="admin-heading-actions"><a class="button button-outline" href="/letterhead/template" target="_blank" rel="noopener">Preview letterhead <span aria-hidden="true">↗</span></a><a class="button button-dark" href="/letterhead/documents/new">New document <span aria-hidden="true">＋</span></a></div>
+      </div>
+      <% if (deleted) { %><p class="admin-alert admin-alert-success" role="status">Document deleted.</p><% } %>
+      <% if (documents.length) { %>
+        <div class="document-list">
+          <% documents.forEach((document) => { %>
+            <article class="document-row">
+              <span class="document-file-icon" aria-hidden="true">DOC</span>
+              <div class="document-row-info">
+                <h2><%= document.title %></h2>
+                <p><% if (document.document_date) { %><%= new Date(document.document_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) %><% } else { %>No document date<% } %><span>·</span> Updated <%= new Date(document.updated_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) %></p>
+              </div>
+              <div class="document-row-actions">
+                <a href="/letterhead/documents/<%= document.id %>/edit">Edit</a>
+                <a href="/letterhead/documents/<%= document.id %>/download">Download PDF</a>
+                <form action="/letterhead/documents/<%= document.id %>/delete" method="post" data-confirm-delete="<%= document.title %>">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button type="submit" class="admin-danger-button">Delete</button>
+                </form>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <section class="admin-empty">
+          <span aria-hidden="true">✳</span><h2>Your first letter is waiting.</h2><p>Start with a title and your message. The finished download will use the supplied company letterhead.</p>
+          <a class="button button-dark" href="/letterhead/documents/new">Create your first document <span aria-hidden="true">↗</span></a>
+        </section>
+      <% } %>
+    </main>
+    <script src="/js/letterhead.js" defer></script>
+  </body>
+</html>

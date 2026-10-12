@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f8f2">
+    <meta name="description" content="<%= document.description %>">
+    <meta name="author" content="Shree Shantinath Enterprises">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="<%= document.pageTitle %>">
+    <meta property="og:description" content="<%= document.description %>">
+    <title><%= document.pageTitle %></title>
+    <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css?v=5">
+    <script type="application/ld+json"><%- JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": document.pageTitle,
+      "description": document.description,
+      "author": { "@type": "Organization", "name": "Shree Shantinath Enterprises" },
+      "publisher": { "@type": "Organization", "name": "Shree Shantinath Enterprises" }
+    }) %></script>
+  </head>
+  <body class="safety-page">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="nav-wrap">
+        <a class="brand" href="/" aria-label="Shree Shantinath Enterprises home">
+          <span class="brand-mark" aria-hidden="true">
+            <img src="/images/brand-mark.svg" alt="" width="48" height="48">
+          </span>
+          <span class="brand-name">SHREE SHANTINATH <b>ENTERPRISES</b></span>
+        </a>
+        <button class="menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="primary-nav">
+          <span></span><span></span>
+        </button>
+        <nav class="primary-nav" id="primary-nav" aria-label="Main navigation">
+          <a href="/#services">What we do</a>
+          <a href="/#about">Our approach</a>
+          <a href="/#sectors">Who we serve</a>
+          <details class="nav-dropdown">
+            <summary aria-current="page">Safety &amp; policies</summary>
+            <div class="nav-dropdown-menu">
+              <% for (const item of Object.values(safetyDocuments)) { %>
+                <a href="/<%= item.slug %>"<% if (item.slug === document.slug) { %> aria-current="page"<% } %>><%= item.title %></a>
+              <% } %>
+            </div>
+          </details>
+          <a href="/letterhead">Letterhead</a>
+          <a class="nav-cta" href="/#contact">Start a conversation <span aria-hidden="true">↗</span></a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="safety-hero">
+        <div class="section-shell safety-hero-inner">
+          <p class="eyebrow"><span class="eyebrow-line"></span> HOW WE WORK SAFELY</p>
+          <p class="safety-breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><span>Safety &amp; policies</span></p>
+          <h1><%= document.title %><span>.</span></h1>
+          <p class="safety-intro"><%= document.intro %></p>
+          <a class="button button-dark" href="<%= document.source %>" target="_blank" rel="noopener"><%= document.sourceLabel %><span aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+
+      <section class="safety-content section-shell">
+        <aside class="safety-sidebar" aria-label="Safety documents">
+          <p>OUR SAFETY FRAMEWORK</p>
+          <% for (const item of Object.values(safetyDocuments)) { %>
+            <a href="/<%= item.slug %>"<% if (item.slug === document.slug) { %> aria-current="page"<% } %>><%= item.title %><span aria-hidden="true">↗</span></a>
+          <% } %>
+          <div class="source-note">The original document is available to view or download as a PDF.</div>
+        </aside>
+        <div class="safety-article">
+          <% document.sections.forEach((section, index) => { %>
+            <section class="safety-section reveal">
+              <span class="safety-section-number"><%= String(index + 1).padStart(2, "0") %></span>
+              <div>
+                <h2><%= section.heading %></h2>
+                <% if (section.intro) { %><p class="safety-section-intro"><%= section.intro %></p><% } %>
+                <% if (section.items.length) { %>
+                  <div class="safety-items">
+                    <% section.items.forEach((item) => { %>
+                      <article>
+                        <span aria-hidden="true">✳</span>
+                        <div><h3><%= item.title %></h3><p><%= item.body %></p></div>
+                      </article>
+                    <% }) %>
+                  </div>
+                <% } %>
+              </div>
+            </section>
+          <% }) %>
+          <div class="safety-source">
+            <span class="safety-source-icon" aria-hidden="true">↗</span>
+            <div><h2>Read the source document</h2><p>See the original PDF for the complete document and its additional context.</p></div>
+            <a class="button button-dark" href="<%= document.source %>" target="_blank" rel="noopener">View PDF <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </section>
+      <section class="safety-contact">
+        <div class="section-shell safety-contact-inner">
+          <div><p class="eyebrow eyebrow-light"><span class="eyebrow-line"></span> WORK WITH US</p><h2>Safety starts with<br><span>a good conversation.</span></h2></div>
+          <a class="button button-light" href="/#contact">Discuss your project <span aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="section-shell footer-main">
+        <a class="brand footer-brand" href="/">
+          <span class="brand-mark" aria-hidden="true"><img src="/images/brand-mark.svg" alt="" width="48" height="48"></span>
+          <span class="brand-name">SHREE SHANTINATH <b>ENTERPRISES</b></span>
+        </a>
+        <p>Building sustainable energy<br>infrastructure together.</p>
+        <a class="footer-top" href="#">Back to top ↑</a>
+      </div>
+      <div class="section-shell footer-bottom"><span>© <span id="year">2026</span> Shree Shantinath Enterprises</span><span>QUALITY · SAFETY · SUSTAINABILITY</span><span>GSTIN 08BOKPV8974D1Z5</span></div>
+    </footer>
+    <script src="/js/main.js?v=2" defer></script>
+  </body>
+</html>

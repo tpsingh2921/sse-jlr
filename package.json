@@ -1,0 +1,33 @@
+{
+  "name": "shree-shantinath-enterprises-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Website for Shree Shantinath Enterprises",
+  "main": "server.js",
+  "scripts": {
+    "build": "vite build",
+    "prestart": "npm run build",
+    "start": "node server.js",
+    "dev": "node -e \"process.env.NODE_ENV='development'; require('./server.js')\""
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "connect-pg-simple": "^10.0.0",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "express-session": "^1.19.0",
+    "helmet": "^8.0.0",
+    "pdf-lib": "^1.17.1",
+    "pg": "^8.13.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.7.0",
+    "vite": "^6.4.4"
+  }
+}

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f8f2">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Secure document management for Shree Shantinath Enterprises.">
+    <title>Admin Sign In | Shree Shantinath Enterprises</title>
+    <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css?v=5">
+  </head>
+  <body class="letterhead-admin">
+    <header class="site-header">
+      <div class="nav-wrap">
+        <a class="brand" href="/" aria-label="Shree Shantinath Enterprises home">
+          <span class="brand-mark" aria-hidden="true"><img src="/images/brand-mark.svg" alt="" width="48" height="48"></span>
+          <span class="brand-name">SHREE SHANTINATH <b>ENTERPRISES</b></span>
+        </a>
+        <a class="admin-back-link" href="/">Back to website</a>
+      </div>
+    </header>
+    <main class="admin-main">
+      <section class="admin-card">
+        <p class="eyebrow"><span class="eyebrow-line"></span> PRIVATE DOCUMENT AREA</p>
+        <h1>Letterhead<br><span>document library.</span></h1>
+        <p class="admin-description">Sign in to create, edit, download and manage company documents.</p>
+        <% if (error) { %><p class="admin-alert <%= configured ? 'admin-alert-error' : 'admin-alert-info' %>" role="alert"><%= error %></p><% } %>
+        <% if (configured) { %>
+          <form class="admin-form" action="/letterhead/login" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <label>Admin password<input type="password" name="password" autocomplete="current-password" required autofocus></label>
+            <button class="button button-dark" type="submit">Sign in <span aria-hidden="true">↗</span></button>
+          </form>
+        <% } else { %>
+          <div class="admin-setup-note"><b>Admin access needs configuration</b><p>Set a private <code>LETTERHEAD_ADMIN_PASSWORD</code> (at least 16 characters) and <code>SESSION_SECRET</code> (at least 32 characters) in your local <code>.env</code>, then restart the website.</p></div>
+        <% } %>
+        <a class="admin-home-link" href="/">← Return to Shree Shantinath Enterprises</a>
+      </section>
+    </main>
+  </body>
+</html>
