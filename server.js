@@ -11,10 +11,14 @@ const { PDFDocument, StandardFonts, rgb } = require("pdf-lib");
 const fdb = require("./firestore-db");
 
 const app = express();
+// Enable reverse proxy trust for Render, Cloudflare, Heroku, etc.
+app.set("trust proxy", 1);
 const port = Number(process.env.PORT) || 3000;
 const contactEmail =
   process.env.CONTACT_EMAIL || "shreeshantinath.enterprises25@gmail.com";
-const sessionSecret = process.env.SESSION_SECRET || "";
+const sessionSecret =
+  process.env.SESSION_SECRET ||
+  "uRjeXAm1PaqK0Dhi-p3OV66tOgiRQ2ibEo74hiRAZdLToldBbtL-SXzRGA_s3H4e";
 let databaseReady = true;
 let viteServer;
 const safetyDocuments = {
@@ -400,12 +404,13 @@ app.use(express.urlencoded({ extended: false, limit: "32kb" }));
 app.use(express.json({ limit: "32kb" }));
 const adminSessionMiddleware = session({
   name: "sse_admin_session",
-  secret: sessionSecret || crypto.randomBytes(32).toString("hex"),
+  secret: sessionSecret,
+  proxy: true,
   resave: false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     maxAge: 8 * 60 * 60 * 1000,
     path: "/",
@@ -485,6 +490,39 @@ function requireCsrf(request, response, next) {
     providedToken.length !== expectedToken.length ||
     !crypto.timingSafeEqual(Buffer.from(providedToken), Buffer.from(expectedToken))
   ) {
+    if (request.path.includes("login")) {
+      return response.status(403).render("admin-login", {
+        csrfToken: issueCsrfToken(request),
+        error: "Your session expired. Please sign in again.",
+        message: "",
+        mode: "login",
+        pageTitle: "Admin Sign In",
+        values: { email: clean(request.body?.email) },
+      });
+    }
+    if (request.path.includes("forgot-password")) {
+      return response.status(403).render("admin-login", {
+        csrfToken: issueCsrfToken(request),
+        error: "Your session expired. Please enter your email again.",
+        message: "",
+        mode: "forgot-password",
+        pageTitle: "Forgot Password",
+        values: { email: clean(request.body?.email) },
+      });
+    }
+    if (request.path.includes("verify-otp")) {
+      return response.status(403).render("admin-login", {
+        csrfToken: issueCsrfToken(request),
+        error: "Your session expired. Please sign in again.",
+        message: "",
+        mode: "verify-otp",
+        pageTitle: "Security Verification",
+        values: {},
+      });
+    }
+    if (request.accepts("html")) {
+      return response.redirect("/admin/login?error=session_expired");
+    }
     return response.status(403).send("Your session expired. Please try again.");
   }
   return next();
@@ -663,16 +701,18 @@ async function sendAdminOtpEmail({ to, otp, type = "login", name = "Administrato
   console.log(`🔐 [ADMIN ${type.toUpperCase()} OTP]: ${otp} for ${to}`);
   console.log("========================================================\n");
 
-  if (process.env.RESEND_API_KEY && process.env.EMAIL_FROM) {
+  const resendKey = process.env.RESEND_API_KEY || "re_BVBnBw9q_MyvaTJAs4sA6y3VzvyZFTBng";
+  const emailSender = process.env.EMAIL_FROM || "onboarding@resend.dev";
+  if (resendKey && emailSender) {
     try {
       await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          Authorization: `Bearer ${resendKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: process.env.EMAIL_FROM,
+          from: emailSender,
           to: [to],
           subject,
           text,
@@ -727,15 +767,17 @@ async function sendInvoiceEmailToAdmin(invoice, recipientEmail) {
 
     console.log(`\n📧 [INVOICE EMAIL]: Sending PDF for ${safeInvNo} to ${to}`);
 
-    if (process.env.RESEND_API_KEY && process.env.EMAIL_FROM) {
+    const resendKey = process.env.RESEND_API_KEY || "re_BVBnBw9q_MyvaTJAs4sA6y3VzvyZFTBng";
+    const emailSender = process.env.EMAIL_FROM || "onboarding@resend.dev";
+    if (resendKey && emailSender) {
       await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          Authorization: `Bearer ${resendKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: process.env.EMAIL_FROM,
+          from: emailSender,
           to: [to],
           subject,
           text,
@@ -958,14 +1000,16 @@ async function sendEnquiryEmail(enquiry) {
     "Reply to this email to contact the client directly.",
   ].join("\n");
 
+  const resendKey = process.env.RESEND_API_KEY || "re_BVBnBw9q_MyvaTJAs4sA6y3VzvyZFTBng";
+  const emailSender = process.env.EMAIL_FROM || "onboarding@resend.dev";
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      Authorization: `Bearer ${resendKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: process.env.EMAIL_FROM,
+      from: emailSender,
       to: [contactEmail],
       reply_to: enquiry.email,
       subject: `New project enquiry from ${enquiry.name}`,
