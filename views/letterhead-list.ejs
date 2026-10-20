@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=21">
+    <link rel="stylesheet" href="/css/styles.css?v=22">
     <script>
       (function() {
         if (localStorage.getItem('sse_theme') === 'dark') {
@@ -94,9 +94,10 @@
       <% if (documents.length) { %>
         <div class="document-list-card">
           <div class="document-list-header">
+            <span></span>
             <span>DOCUMENT TITLE &amp; DETAILS</span>
             <span>DATE &amp; ACTIVITY</span>
-            <span>ACTIONS</span>
+            <span style="text-align: right;">ACTIONS</span>
           </div>
           <div class="document-list">
             <% documents.forEach((document) => { %>
@@ -126,8 +127,8 @@
                   <small>Modified <%= new Date(document.updated_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) %></small>
                 </div>
                 <div class="document-row-actions">
-                  <a class="action-btn-pill action-edit" href="/letterhead/documents/<%= document.id %>/edit">Edit Draft</a>
-                  <a class="action-btn-pill action-download" href="/letterhead/documents/<%= document.id %>/download">Download PDF ↓</a>
+                  <a class="action-btn-pill action-edit" href="/letterhead/documents/<%= document.id %>/edit">Edit</a>
+                  <a class="action-btn-pill action-download" href="/letterhead/documents/<%= document.id %>/download">PDF ↓</a>
                   <form action="/letterhead/documents/<%= document.id %>/delete" method="post" data-confirm-delete="<%= document.title %>" style="margin:0;">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button type="submit" class="admin-danger-button">Delete</button>

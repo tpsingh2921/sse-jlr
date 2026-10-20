@@ -4981,3 +4981,283 @@ body.dark-mode .safety-item-card h3 {
     width: 100% !important;
   }
 }
+
+
+/* ==========================================================================
+   TARGETED FIX 1: RADIANT GOLDEN SUN (NEVER GREEN) ON HOME & ALL SAFETY PAGES
+   ========================================================================== */
+.sun-core,
+[data-theme="dark"] .sun-core,
+.canvas-sun-wrap .sun-core,
+[data-theme="dark"] .canvas-sun-wrap .sun-core,
+.safety-sun,
+[data-theme="dark"] .safety-sun {
+  background: radial-gradient(circle, #ffffff 0%, #fff7cc 25%, #fde047 50%, #f59e0b 80%, #d97706 100%) !important;
+  box-shadow: 0 0 50px rgba(245, 158, 11, 0.85), 0 0 95px rgba(251, 191, 36, 0.5) !important;
+}
+
+.sun-halo,
+[data-theme="dark"] .sun-halo,
+.canvas-sun-wrap .sun-halo,
+[data-theme="dark"] .canvas-sun-wrap .sun-halo {
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.45) 0%, rgba(245, 158, 11, 0.22) 45%, transparent 70%) !important;
+}
+
+.sun-rays-pulse,
+[data-theme="dark"] .sun-rays-pulse,
+.canvas-sun-wrap .sun-rays-pulse,
+[data-theme="dark"] .canvas-sun-wrap .sun-rays-pulse {
+  border-color: rgba(245, 158, 11, 0.45) !important;
+}
+
+
+/* ==========================================================================
+   TARGETED FIX 2: REALISTIC SKY & NATURAL GRASS ON ALL THREE SAFETY PAGES
+   ========================================================================== */
+/* Daylight Sky & Rolling Grass in Light Mode */
+.safety-hero-art {
+  background: linear-gradient(180deg, #bae6fd 0%, #e0f2fe 40%, #fef3c7 75%, #fde68a 100%) !important;
+  border: 3px solid rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 24px 60px rgba(7, 26, 20, 0.16) !important;
+}
+
+.hills-back.safety-hills-back {
+  background: #65a30d !important;
+}
+
+.hills-front.safety-hills-front {
+  background: #2e7d32 !important;
+}
+
+/* Twilight/Midnight Sky & Landscape in Dark Mode (NO GREEN SKY) */
+[data-theme="dark"] .safety-hero-art {
+  background: linear-gradient(180deg, #071126 0%, #0d1e3d 40%, #162a52 75%, #1e3a64 100%) !important;
+  border: 3px solid rgba(56, 189, 248, 0.3) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8) !important;
+}
+
+[data-theme="dark"] .hills-back.safety-hills-back {
+  background: #14422b !important;
+}
+
+[data-theme="dark"] .hills-front.safety-hills-front {
+  background: #0d2e1e !important;
+}
+
+/* Floating ISO Badge Alignment inside Arch (Unclipped) */
+.safety-badge-floating {
+  position: absolute !important;
+  top: 34px !important;
+  right: 34px !important;
+  max-width: 195px !important;
+  padding: 8px 12px !important;
+  z-index: 10 !important;
+}
+
+
+/* ==========================================================================
+   TARGETED FIX 3: MOBILE NAVBAR BUTTON VISIBILITY & RESPONSIVENESS
+   ========================================================================== */
+.mobile-menu-trigger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid rgba(13, 40, 32, 0.2);
+  background: rgba(13, 40, 32, 0.04);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.burger-bar {
+  width: 20px;
+  height: 2px;
+  background: #0d2820 !important;
+  transition: all 0.25s ease;
+  border-radius: 2px;
+}
+
+/* In Dark Mode: Hamburger is Pure White & Luminous */
+[data-theme="dark"] .mobile-menu-trigger {
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .burger-bar {
+  background: #ffffff !important;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5) !important;
+}
+
+.mobile-menu-trigger:hover,
+.mobile-menu-trigger[aria-expanded="true"] {
+  border-color: #10b981 !important;
+  background: rgba(16, 185, 129, 0.15) !important;
+}
+
+.mobile-menu-trigger:hover .burger-bar,
+.mobile-menu-trigger[aria-expanded="true"] .burger-bar {
+  background: #34d399 !important;
+}
+
+/* Responsive Breakpoints: Switch to Mobile Menu before squishing */
+@media (max-width: 1080px) {
+  .modern-nav-links {
+    display: none !important;
+  }
+
+  .phone-pill-link {
+    display: none !important;
+  }
+
+  .mobile-menu-trigger {
+    display: flex !important;
+  }
+
+  .mobile-nav-drawer.is-open {
+    display: block !important;
+  }
+}
+
+/* Mobile Screens <= 768px: Clean Header Layout (No Horizontal Squeeze) */
+@media (max-width: 768px) {
+  .nav-container {
+    height: 64px !important;
+    padding: 0 14px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+
+  .modern-brand {
+    gap: 8px !important;
+    min-width: 0 !important;
+  }
+
+  .brand-logo-frame {
+    width: 32px !important;
+    height: 32px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .brand-title {
+    font-size: 11.5px !important;
+    letter-spacing: 0.5px !important;
+    white-space: nowrap !important;
+  }
+
+  .brand-subtitle {
+    font-size: 8.5px !important;
+  }
+
+  .header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Hide call button and CTA from top header on mobile (present inside drawer) */
+  .header-actions .phone-pill-link,
+  .header-actions .button.button-accent {
+    display: none !important;
+  }
+
+  .theme-toggle-btn {
+    padding: 5px 8px !important;
+    font-size: 11px !important;
+  }
+
+  .mobile-menu-trigger {
+    display: flex !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+}
+
+
+/* ==========================================================================
+   TARGETED FIX 4: ZERO HORIZONTAL SCROLL IN LETTERHEAD LIBRARY
+   ========================================================================== */
+.document-list-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important; /* Eliminate unwanted horizontal scrollbar */
+}
+
+.document-list-header,
+.modern-doc-row {
+  display: grid !important;
+  grid-template-columns: 46px minmax(200px, 1fr) 130px auto !important;
+  gap: 12px !important;
+  align-items: center !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 14px 18px !important;
+}
+
+.doc-icon-badge {
+  width: 38px !important;
+  height: 38px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.document-row-info {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.document-row-info h2 {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  margin: 0 0 4px !important;
+  word-break: break-word !important;
+}
+
+.doc-subject-preview,
+.doc-recipient-preview {
+  font-size: 11.5px !important;
+  margin: 0 0 2px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.doc-date-col {
+  font-size: 11.5px !important;
+  white-space: nowrap !important;
+}
+
+.document-row-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 5px !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+}
+
+.document-row-actions .action-btn-pill,
+.document-row-actions .admin-danger-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 4px 8px !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+  font-weight: 600 !important;
+  border-radius: 5px !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+}
