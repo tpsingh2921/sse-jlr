@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#071a14">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Administration portal for Shree Shantinath Enterprises.">
+    <title>⚡ <%= pageTitle || 'Admin Sign In' %> | Shree Shantinath Enterprises</title>
+    <link rel="icon" type="image/svg+xml" href="/favicons/favicon-admin.svg?v=7">
+    <link rel="shortcut icon" href="/favicons/favicon-admin.svg?v=7">
+    <link rel="apple-touch-icon" href="/favicons/favicon-admin.svg?v=7">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css?v=16">
+    <script>
+      (function() {
+        var t = localStorage.getItem('sse_theme');
+        if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
+  </head>
+  <body class="letterhead-admin auth-page-body">
+    <header class="site-header">
+      <div class="nav-wrap">
+        <a class="brand" href="/" aria-label="Shree Shantinath Enterprises home">
+          <span class="brand-mark" aria-hidden="true">
+            <img src="/images/brand-mark.svg" alt="" width="44" height="44">
+          </span>
+          <span class="brand-name">SHREE SHANTINATH <b>ENTERPRISES</b></span>
+        </a>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle dark mode theme" title="Toggle gradient dark theme">
+            <span class="sun-icon" style="display:none;">☀️</span>
+            <span class="moon-icon">🌙</span>
+            <span class="theme-toggle-label">Dark</span>
+          </button>
+          <a class="admin-back-link" href="/">← Return to Website</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="admin-main auth-main-container">
+      <div class="auth-card-wrapper">
+        <div class="auth-top-accent-line"></div>
+
+        <% if (locals.mode === 'verify-otp') { %>
+          <!-- STEP 2: VERIFICATION CODE SCREEN -->
+          <div class="auth-card-header">
+            <h1>Security <span>Verification</span></h1>
+            <p class="admin-description">
+              Enter the 6-digit verification code sent to your email.
+            </p>
+          </div>
+
+          <% if (locals.error) { %>
+            <div class="admin-alert admin-alert-error" role="alert"><%= error %></div>
+          <% } %>
+          <% if (locals.message) { %>
+            <div class="admin-alert admin-alert-success" role="status"><%= message %></div>
+          <% } %>
+
+          <form class="admin-form otp-form" action="/admin/verify-otp" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            
+            <div class="auth-input-group">
+              <input
+                type="text"
+                name="otp"
+                inputmode="numeric"
+                pattern="[0-9]{6}"
+                maxlength="6"
+                placeholder="Enter 6-digit code"
+                class="otp-digit-field"
+                required
+                autofocus
+                autocomplete="one-time-code"
+              >
+            </div>
+
+            <button class="button button-dark button-wide auth-submit-btn" type="submit">
+              <span>Verify &amp; Continue</span>
+              <span aria-hidden="true">↗</span>
+            </button>
+          </form>
+
+          <div class="otp-resend-row">
+            <span>Didn't receive code?</span>
+            <form action="/admin/resend-otp" method="post" style="display:inline;">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="link-btn-text">Resend Code</button>
+            </form>
+          </div>
+
+        <% } else if (locals.mode === 'forgot-password') { %>
+          <!-- FORGOT PASSWORD: REQUEST RESET CODE -->
+          <div class="auth-card-header">
+            <h1>Reset <span>Password</span></h1>
+            <p class="admin-description">
+              Enter your email address to receive a verification code.
+            </p>
+          </div>
+
+          <% if (locals.error) { %>
+            <div class="admin-alert admin-alert-error" role="alert"><%= error %></div>
+          <% } %>
+          <% if (locals.message) { %>
+            <div class="admin-alert admin-alert-success" role="status"><%= message %></div>
+          <% } %>
+
+          <form class="admin-form" action="/admin/forgot-password" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            
+            <div class="auth-input-group">
+              <input
+                type="email"
+                name="email"
+                autocomplete="username"
+                class="form-control auth-single-field"
+                placeholder="Email address"
+                required
+                autofocus
+                value="<%= locals.values?.email || '' %>"
+              >
+            </div>
+
+            <button class="button button-dark button-wide auth-submit-btn" type="submit">
+              <span>Send Verification Code</span>
+              <span aria-hidden="true">↗</span>
+            </button>
+          </form>
+
+          <div class="auth-aux-row text-center" style="margin-top: 20px; justify-content: center;">
+            <a href="/admin/login" class="link-btn-text">← Return to Sign In</a>
+          </div>
+
+        <% } else if (locals.mode === 'reset-password') { %>
+          <!-- RESET PASSWORD: ENTER CODE AND NEW PASSWORD -->
+          <div class="auth-card-header">
+            <h1>Set New <span>Password</span></h1>
+            <p class="admin-description">
+              Enter the 6-digit code sent to your email and choose your new password.
+            </p>
+          </div>
+
+          <% if (locals.error) { %>
+            <div class="admin-alert admin-alert-error" role="alert"><%= error %></div>
+          <% } %>
+          <% if (locals.message) { %>
+            <div class="admin-alert admin-alert-success" role="status"><%= message %></div>
+          <% } %>
+
+          <form class="admin-form" action="/admin/reset-password" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            
+            <div class="auth-input-group">
+              <input
+                type="text"
+                name="otp"
+                inputmode="numeric"
+                pattern="[0-9]{6}"
+                maxlength="6"
+                placeholder="Enter 6-digit code"
+                class="otp-digit-field"
+                required
+                autofocus
+                autocomplete="one-time-code"
+              >
+            </div>
+
+            <div class="auth-input-group auth-password-group" style="position:relative;">
+              <input
+                type="password"
+                id="reset-new-password"
+                name="newPassword"
+                minlength="8"
+                class="form-control auth-single-field"
+                placeholder="New password (minimum 8 characters)"
+                required
+              >
+              <button
+                type="button"
+                class="password-peek-btn"
+                aria-label="Show or hide password"
+                title="Show or hide password"
+              >
+                <span class="peek-eye">👁️</span>
+                <span class="peek-eye-slash" style="display:none;">🙈</span>
+              </button>
+            </div>
+
+            <div class="auth-input-group auth-password-group" style="position:relative;">
+              <input
+                type="password"
+                id="reset-confirm-password"
+                name="confirmPassword"
+                minlength="8"
+                class="form-control auth-single-field"
+                placeholder="Confirm new password"
+                required
+              >
+              <button
+                type="button"
+                class="password-peek-btn"
+                aria-label="Show or hide password"
+                title="Show or hide password"
+              >
+                <span class="peek-eye">👁️</span>
+                <span class="peek-eye-slash" style="display:none;">🙈</span>
+              </button>
+            </div>
+
+            <button class="button button-dark button-wide auth-submit-btn" type="submit">
+              <span>Update Password</span>
+              <span aria-hidden="true">↗</span>
+            </button>
+          </form>
+
+          <div class="auth-aux-row text-center" style="margin-top: 20px; justify-content: center;">
+            <a href="/admin/login" class="link-btn-text">Cancel &amp; Return to Sign In</a>
+          </div>
+
+        <% } else { %>
+          <!-- STEP 1: CLEAN ADMIN SIGN IN SCREEN -->
+          <div class="auth-card-header">
+            <h1>Admin <span>Sign In</span></h1>
+          </div>
+
+          <% if (locals.error) { %>
+            <div class="admin-alert admin-alert-error" role="alert"><%= error %></div>
+          <% } %>
+          <% if (locals.message) { %>
+            <div class="admin-alert admin-alert-success" role="status"><%= message %></div>
+          <% } %>
+
+          <form class="admin-form" action="/admin/login" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            
+            <div class="auth-input-group">
+              <input
+                type="email"
+                name="email"
+                autocomplete="username"
+                class="form-control auth-single-field"
+                placeholder="Email address"
+                required
+                autofocus
+                value="<%= locals.values?.email || '' %>"
+              >
+            </div>
+
+            <div class="auth-input-group auth-password-group" style="position:relative;">
+              <input
+                type="password"
+                id="login-admin-password"
+                name="password"
+                autocomplete="current-password"
+                class="form-control auth-single-field"
+                placeholder="Password"
+                required
+              >
+              <button
+                type="button"
+                class="password-peek-btn"
+                aria-label="Show or hide password"
+                title="Show or hide password"
+              >
+                <span class="peek-eye">👁️</span>
+                <span class="peek-eye-slash" style="display:none;">🙈</span>
+              </button>
+            </div>
+
+            <div class="auth-password-helper-row" style="display:flex;justify-content:flex-end;margin-top:-6px;margin-bottom:18px;">
+              <a href="/admin/forgot-password" class="forgot-link">
+                <span>Forgot password?</span>
+              </a>
+            </div>
+
+            <button class="button button-dark button-wide auth-submit-btn" type="submit">
+              <span>Sign In</span>
+              <span aria-hidden="true">↗</span>
+            </button>
+          </form>
+        <% } %>
+
+        <div class="auth-footer-nav">
+          <a class="admin-home-link" href="/">← Return to Shree Shantinath Enterprises Home</a>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      (function() {
+        function setupPeekToggles() {
+          var btns = document.querySelectorAll('.password-peek-btn');
+          btns.forEach(function(btn) {
+            if (btn._bound) return;
+            btn._bound = true;
+            btn.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              var group = btn.closest('.auth-password-group') || btn.parentElement;
+              if (!group) return;
+              var input = group.querySelector('input');
+              if (!input) return;
+              var isPassword = input.type === 'password';
+              input.type = isPassword ? 'text' : 'password';
+              var eye = btn.querySelector('.peek-eye');
+              var eyeSlash = btn.querySelector('.peek-eye-slash');
+              if (eye) eye.style.display = isPassword ? 'none' : 'inline';
+              if (eyeSlash) eyeSlash.style.display = isPassword ? 'inline' : 'none';
+            });
+          });
+        }
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', setupPeekToggles);
+        } else {
+          setupPeekToggles();
+        }
+      })();
+    </script>
+    <script src="/js/main.js?v=4" defer></script>
+  </body>
+</html>

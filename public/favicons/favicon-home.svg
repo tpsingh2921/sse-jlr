@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="homeShield" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0e1720"/>
+      <stop offset="50%" stop-color="#0a231b"/>
+      <stop offset="100%" stop-color="#030d09"/>
+    </linearGradient>
+    <linearGradient id="homeGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="40%" stop-color="#f5cb74"/>
+      <stop offset="100%" stop-color="#d4af37"/>
+    </linearGradient>
+    <linearGradient id="homeEmerald" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="60%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+  </defs>
+  <!-- Hexagonal Shield Base -->
+  <path d="M32 3 L57 14 L57 44 L32 61 L7 44 L7 14 Z" fill="url(#homeShield)" stroke="url(#homeGold)" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Inner Blueprint Grid Accent -->
+  <path d="M32 8 L52 17 L52 41 L32 55 L12 41 L12 17 Z" fill="none" stroke="url(#homeEmerald)" stroke-width="1" stroke-dasharray="3 2" opacity="0.7"/>
+  <!-- Central Lightning Monogram SSE -->
+  <path d="M38 15 L22 33 L32 33 L26 49 L44 29 L33 29 Z" fill="url(#homeGold)" stroke="#0d2820" stroke-width="1"/>
+  <!-- Foundation Line -->
+  <line x1="16" y1="51" x2="48" y2="51" stroke="url(#homeEmerald)" stroke-width="2" stroke-linecap="round"/>
+</svg>

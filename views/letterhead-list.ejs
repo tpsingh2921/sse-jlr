@@ -3,61 +3,151 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f7f8f2">
+    <meta name="theme-color" content="#071a14">
     <meta name="robots" content="noindex, nofollow">
-    <title>Letterhead Documents | Shree Shantinath Enterprises</title>
-    <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml">
+    <title>⚡ Letterhead Library | Shree Shantinath Enterprises</title>
+    <link rel="icon" type="image/svg+xml" href="/favicons/favicon-letterhead.svg?v=7">
+    <link rel="shortcut icon" href="/favicons/favicon-letterhead.svg?v=7">
+    <link rel="apple-touch-icon" href="/favicons/favicon-letterhead.svg?v=7">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=5">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css?v=10">
+    <script>
+      (function() {
+        var t = localStorage.getItem('sse_theme');
+        if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
   </head>
-  <body class="letterhead-admin">
-    <header class="site-header">
+  <body class="letterhead-admin admin-hub-body">
+    <!-- Top Global Admin Bar -->
+    <header class="site-header admin-global-header">
       <div class="nav-wrap">
         <a class="brand" href="/" aria-label="Shree Shantinath Enterprises home">
-          <span class="brand-mark" aria-hidden="true"><img src="/images/brand-mark.svg" alt="" width="48" height="48"></span>
+          <span class="brand-mark" aria-hidden="true">
+            <img src="/images/brand-mark.svg" alt="" width="40" height="40">
+          </span>
           <span class="brand-name">SHREE SHANTINATH <b>ENTERPRISES</b></span>
         </a>
+
+        <!-- Admin Navigation Tabs -->
+        <nav class="admin-top-tabs">
+          <a href="/letterhead" class="admin-tab is-active">
+            <span class="tab-icon">📄</span> Letterheads
+          </a>
+          <a href="/admin/invoices" class="admin-tab ">
+            <span class="tab-icon">🧾</span> Tax Invoices
+          </a>
+          <a href="/admin/enquiries" class="admin-tab ">
+            <span class="tab-icon">📬</span> Client Enquiries
+          </a>
+        </nav>
+
         <div class="admin-header-actions">
-          <a class="admin-back-link" href="/">Back to website</a>
-          <form action="/letterhead/logout" method="post"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="admin-link-button" type="submit">Sign out</button></form>
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle dark mode theme" title="Toggle gradient dark theme">
+            <span class="sun-icon" style="display:none;">☀️</span>
+            <span class="moon-icon">🌙</span>
+            <span class="theme-toggle-label">Dark</span>
+          </button>
+          <% if (locals.adminUser) { %>
+            <div class="admin-user-pill">
+              <span class="user-status-dot"></span>
+              <span><%= adminUser.name %></span>
+            </div>
+          <% } %>
+          <a class="admin-back-link" href="/" target="_blank">View Site ↗</a>
+          <form action="/letterhead/logout" method="post" style="margin:0;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="admin-link-button" type="submit">Sign out</button>
+          </form>
         </div>
       </div>
     </header>
+
     <main class="admin-main admin-main-wide">
       <div class="admin-page-heading">
-        <div><p class="eyebrow"><span class="eyebrow-line"></span> PRIVATE DOCUMENT AREA</p><h1>Your <span>documents.</span></h1><p class="admin-description">Create, update and download documents on the company letterhead.</p></div>
-        <div class="admin-heading-actions"><a class="button button-outline" href="/letterhead/template" target="_blank" rel="noopener">Preview letterhead <span aria-hidden="true">↗</span></a><a class="button button-dark" href="/letterhead/documents/new">New document <span aria-hidden="true">＋</span></a></div>
+        <div>
+          <p class="eyebrow"><span class="eyebrow-line"></span> CORPORATE DOCUMENT LIBRARY</p>
+          <h1>Letterhead <span>Documents.</span></h1>
+          <p class="admin-description">
+            Create, manage and export formal communications, proposals and agreements on the official Shree Shantinath Enterprises letterhead.
+          </p>
+        </div>
+        <div class="admin-heading-actions">
+          <a class="button button-outline" href="/letterhead/template" target="_blank" rel="noopener">
+            <span>Preview Blank Letterhead</span> ↗
+          </a>
+          <a class="button button-dark" href="/letterhead/documents/new">
+            <span>New Letterhead Document</span> ＋
+          </a>
+        </div>
       </div>
-      <% if (deleted) { %><p class="admin-alert admin-alert-success" role="status">Document deleted.</p><% } %>
+
+      <% if (deleted) { %>
+        <p class="admin-alert admin-alert-success" role="status">Document has been permanently deleted.</p>
+      <% } %>
+
       <% if (documents.length) { %>
-        <div class="document-list">
-          <% documents.forEach((document) => { %>
-            <article class="document-row">
-              <span class="document-file-icon" aria-hidden="true">DOC</span>
-              <div class="document-row-info">
-                <h2><%= document.title %></h2>
-                <p><% if (document.document_date) { %><%= new Date(document.document_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) %><% } else { %>No document date<% } %><span>·</span> Updated <%= new Date(document.updated_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) %></p>
-              </div>
-              <div class="document-row-actions">
-                <a href="/letterhead/documents/<%= document.id %>/edit">Edit</a>
-                <a href="/letterhead/documents/<%= document.id %>/download">Download PDF</a>
-                <form action="/letterhead/documents/<%= document.id %>/delete" method="post" data-confirm-delete="<%= document.title %>">
-                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                  <button type="submit" class="admin-danger-button">Delete</button>
-                </form>
-              </div>
-            </article>
-          <% }) %>
+        <div class="document-list-card">
+          <div class="document-list-header">
+            <span>DOCUMENT TITLE &amp; DETAILS</span>
+            <span>DATE &amp; ACTIVITY</span>
+            <span>ACTIONS</span>
+          </div>
+          <div class="document-list">
+            <% documents.forEach((document) => { %>
+              <article class="document-row modern-doc-row">
+                <div class="doc-icon-badge">
+                  <span>DOC</span>
+                </div>
+                <div class="document-row-info">
+                  <h2><%= document.title %></h2>
+                  <% if (document.subject) { %>
+                    <p class="doc-subject-preview"><strong>Subject:</strong> <%= document.subject %></p>
+                  <% } %>
+                  <p class="doc-recipient-preview">
+                    <% if (document.recipient) { %>
+                      To: <%= document.recipient.split('\n')[0] %>
+                    <% } %>
+                  </p>
+                </div>
+                <div class="doc-date-col">
+                  <strong>
+                    <% if (document.document_date) { %>
+                      <%= new Date(document.document_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) %>
+                    <% } else { %>
+                      Undated
+                    <% } %>
+                  </strong>
+                  <small>Modified <%= new Date(document.updated_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) %></small>
+                </div>
+                <div class="document-row-actions">
+                  <a class="action-btn-pill action-edit" href="/letterhead/documents/<%= document.id %>/edit">Edit Draft</a>
+                  <a class="action-btn-pill action-download" href="/letterhead/documents/<%= document.id %>/download">Download PDF ↓</a>
+                  <form action="/letterhead/documents/<%= document.id %>/delete" method="post" data-confirm-delete="<%= document.title %>" style="margin:0;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="admin-danger-button">Delete</button>
+                  </form>
+                </div>
+              </article>
+            <% }) %>
+          </div>
         </div>
       <% } else { %>
-        <section class="admin-empty">
-          <span aria-hidden="true">✳</span><h2>Your first letter is waiting.</h2><p>Start with a title and your message. The finished download will use the supplied company letterhead.</p>
-          <a class="button button-dark" href="/letterhead/documents/new">Create your first document <span aria-hidden="true">↗</span></a>
+        <section class="admin-empty-card">
+          <span class="empty-icon-spark">✳</span>
+          <h2>Your Letterhead Library is Empty</h2>
+          <p>Draft client proposals, sub-contracting agreements, or official company letters formatted cleanly on the firm letterhead.</p>
+          <a class="button button-dark" href="/letterhead/documents/new">
+            <span>Create First Document</span> ＋
+          </a>
         </section>
       <% } %>
     </main>
     <script src="/js/letterhead.js" defer></script>
+    <script src="/js/main.js?v=3" defer></script>
   </body>
 </html>

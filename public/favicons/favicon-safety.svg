@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="safetyBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="safetyAmber" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="40%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="safetyEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+  <!-- Safety Governance Shield -->
+  <path d="M32 4 C48 10 56 12 56 26 C56 44 44 56 32 60 C20 56 8 44 8 26 C8 12 16 10 32 4 Z" fill="url(#safetyBg)" stroke="url(#safetyAmber)" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Safety Construction Hardhat -->
+  <path d="M19 35 C19 24 24 20 32 20 C40 20 45 24 45 35 Z" fill="url(#safetyAmber)"/>
+  <!-- Hardhat Brim -->
+  <path d="M16 35 C16 34 20 34 32 34 C44 34 48 34 48 35 C48 37 44 38 32 38 C20 38 16 37 16 35 Z" fill="#d97706"/>
+  <!-- Hardhat Center Ridge -->
+  <path d="M30 20 L34 20 L33 34 L31 34 Z" fill="#fef08a"/>
+  <!-- Safety Green Cross / First-Aid Seal (Bottom) -->
+  <circle cx="32" cy="47" r="7" fill="#065f46" stroke="url(#safetyEmerald)" stroke-width="1.5"/>
+  <rect x="30" y="43" width="4" height="8" rx="1" fill="#34d399"/>
+  <rect x="28" y="45" width="8" height="4" rx="1" fill="#34d399"/>
+</svg>

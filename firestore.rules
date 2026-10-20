@@ -1,0 +1,50 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. PROJECT ENQUIRIES:
+    // Public website visitors can submit new enquiries with data validation.
+    // The backend server reads, updates status, and manages enquiries.
+    match /enquiries/{enquiryId} {
+      allow create: if request.resource.data.name is string
+                    && request.resource.data.name.size() > 0
+                    && request.resource.data.name.size() <= 100
+                    && request.resource.data.email is string
+                    && request.resource.data.email.size() > 0
+                    && request.resource.data.email.size() <= 120
+                    && request.resource.data.requirements is string
+                    && request.resource.data.requirements.size() > 0
+                    && request.resource.data.requirements.size() <= 5000;
+      allow read, update, delete: if true;
+    }
+
+    // 2. ADMINISTRATOR CREDENTIALS:
+    // Fetched directly from Cloud Firestore by backend server for authentication.
+    match /admins/{adminId} {
+      allow read, write: if true;
+    }
+
+    // 3. EXECUTIVE LETTERHEAD DOCUMENTS:
+    // Corporate document library accessed via authenticated admin portal.
+    match /letterhead_documents/{documentId} {
+      allow read, write: if true;
+    }
+
+    // 4. GST TAX INVOICES:
+    // Invoices and billing records managed via authenticated admin portal.
+    match /invoices/{invoiceId} {
+      allow read, write: if true;
+    }
+
+    // 5. SERVER SESSIONS:
+    match /sessions/{sessionId} {
+      allow read, write: if true;
+    }
+
+    // 6. DEFAULT DENY:
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

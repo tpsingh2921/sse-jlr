@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#071a14">
+    <meta name="robots" content="noindex, nofollow">
+    <title>⚡ <%= isNew ? 'Generate Tax Invoice' : 'Edit Invoice ' + invoice.invoice_number %> | Shree Shantinath Enterprises</title>
+    <link rel="icon" type="image/svg+xml" href="/favicons/favicon-invoices.svg?v=7">
+    <link rel="shortcut icon" href="/favicons/favicon-invoices.svg?v=7">
+    <link rel="apple-touch-icon" href="/favicons/favicon-invoices.svg?v=7">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css?v=12">
+    <script>
+      (function() {
+        var t = localStorage.getItem('sse_theme');
+        if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
+  </head>
+  <body class="letterhead-admin admin-hub-body">
+    <!-- Top Global Admin Bar -->
+    <header class="site-header admin-global-header">
+      <div class="nav-wrap">
+        <a class="brand" href="/" aria-label="Shree Shantinath Enterprises home">
+          <span class="brand-mark" aria-hidden="true">
+            <img src="/images/brand-mark.svg" alt="" width="40" height="40">
+          </span>
+          <span class="brand-name">SHREE SHANTINATH <b>ENTERPRISES</b></span>
+        </a>
+
+        <!-- Admin Navigation Tabs -->
+        <nav class="admin-top-tabs">
+          <a href="/letterhead" class="admin-tab">
+            <span class="tab-icon">📄</span> Letterheads
+          </a>
+          <a href="/admin/invoices" class="admin-tab is-active">
+            <span class="tab-icon">🧾</span> Tax Invoices
+          </a>
+          <a href="/admin/enquiries" class="admin-tab">
+            <span class="tab-icon">📬</span> Client Enquiries
+          </a>
+        </nav>
+
+        <div class="admin-header-actions">
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle dark mode theme" title="Toggle gradient dark theme">
+            <span class="sun-icon" style="display:none;">☀️</span>
+            <span class="moon-icon">🌙</span>
+            <span class="theme-toggle-label">Dark</span>
+          </button>
+          <a class="admin-back-link" href="/admin/invoices">← All Invoices</a>
+          <form action="/letterhead/logout" method="post" style="margin:0;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="admin-link-button" type="submit">Sign out</button>
+          </form>
+        </div>
+      </div>
+    </header>
+
+    <main class="admin-main admin-main-wide">
+      <div class="admin-page-heading editor-heading">
+        <div>
+          <p class="eyebrow"><span class="eyebrow-line"></span> GST TAX INVOICE CREATOR &bull; GOVT. CIVIL &amp; RENEWABLE INFRASTRUCTURE</p>
+          <h1><%= isNew ? 'Generate Clean Energy' : 'Edit' %> <span>Tax Invoice.</span></h1>
+          <p class="admin-description">
+            Complete the form fields below. All titles and text boxes are organized by section with auto-calculations for CGST, SGST, IGST, and Indian Rupee words.
+          </p>
+        </div>
+        <div class="admin-heading-actions">
+          <a class="button button-outline" href="/admin/invoices">Cancel &amp; Return</a>
+        </div>
+      </div>
+
+      <% if (locals.error) { %>
+        <div class="admin-alert admin-alert-error" role="alert"><%= error %></div>
+      <% } %>
+
+      <form class="invoice-form modern-editor-panel" action="<%= isNew ? '/admin/invoices' : '/admin/invoices/' + invoice.id %>" method="post" id="invoiceForm">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <!-- =========================================================================
+             SECTION 1: INVOICE IDENTIFIERS & DATES
+             ========================================================================= -->
+        <section class="form-section-card">
+          <div class="section-card-title">
+            <span class="sec-badge">01</span>
+            <div>
+              <h3>Invoice Identifiers &amp; Key Dates</h3>
+              <p class="section-subtitle">Official invoice reference numbering, dates of issuance, and status tracking.</p>
+            </div>
+          </div>
+
+          <div class="form-grid-3col">
+            <div class="form-field-block">
+              <label for="invoice_number" class="field-label">
+                <span class="field-name">Invoice Number</span>
+                <span class="field-badge required">Required</span>
+              </label>
+              <input
+                type="text"
+                id="invoice_number"
+                name="invoice_number"
+                class="form-control"
+                value="<%= invoice.invoice_number %>"
+                required
+                placeholder="e.g. SSE/2026-27/001"
+              >
+              <span class="field-hint">Unique sequential GST serial number</span>
+            </div>
+
+            <div class="form-field-block">
+              <label for="invoice_date" class="field-label">
+                <span class="field-name">Invoice Date</span>
+                <span class="field-badge required">Required</span>
+              </label>
+              <input
+                type="date"
+                id="invoice_date"
+                name="invoice_date"
+                class="form-control"
+                value="<%= invoice.invoice_date ? new Date(invoice.invoice_date).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10) %>"
+                required
+              >
+              <span class="field-hint">Date of invoice generation</span>
+            </div>
+
+            <div class="form-field-block">
+              <label for="due_date" class="field-label">
+                <span class="field-name">Payment Due Date</span>
+                <span class="field-badge optional">Optional</span>
+              </label>
+              <input
+                type="date"
+                id="due_date"
+                name="due_date"
+                class="form-control"
+                value="<%= invoice.due_date ? new Date(invoice.due_date).toISOString().slice(0, 10) : '' %>"
+              >
+              <span class="field-hint">E.g. Net 30 or milestone date</span>
+            </div>
+          </div>
+
+          <div class="form-grid-3col">
+            <div class="form-field-block">
+              <label for="work_order_no" class="field-label">
+                <span class="field-name">Work Order / PO Number</span>
+                <span class="field-badge optional">Optional</span>
+              </label>
+              <input
+                type="text"
+                id="work_order_no"
+                name="work_order_no"
+                class="form-control"
+                value="<%= invoice.work_order_no || '' %>"
+                placeholder="e.g. PO-TPREL-2026-881"
+              >
+              <span class="field-hint">Developer's client purchase order</span>
+            </div>
+
+            <div class="form-field-block">
+              <label for="work_order_date" class="field-label">
+                <span class="field-name">Work Order Date</span>
+                <span class="field-badge optional">Optional</span>
+              </label>
+              <input
+                type="date"
+                id="work_order_date"
+                name="work_order_date"
+                class="form-control"
+                value="<%= invoice.work_order_date ? new Date(invoice.work_order_date).toISOString().slice(0, 10) : '' %>"
+              >
+              <span class="field-hint">Contract execution / award date</span>
+            </div>
+
+            <div class="form-field-block">
+              <label for="invoice_status" class="field-label">
+                <span class="field-name">Payment Status</span>
+                <span class="field-badge required">Required</span>
+              </label>
+              <select id="invoice_status" name="status" class="form-control form-select">
+                <option value="Pending" <%= invoice.status === 'Pending' ? 'selected' : '' %>>Pending Payment (Unsettled)</option>
+                <option value="Paid" <%= invoice.status === 'Paid' ? 'selected' : '' %>>Paid / Settled (Full Payment)</option>
+                <option value="Cancelled" <%= invoice.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+              </select>
+              <span class="field-hint">Tracks receivables in your dashboard</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================================================
+             SECTION 2: BILLED TO (CLIENT) & PROJECT SITE CONSIGNEE
+             ========================================================================= -->
+        <section class="form-section-card">
+          <div class="section-card-title">
+            <span class="sec-badge">02</span>
+            <div>
+              <h3>Billed To (Client / Developer) &amp; Shipped Consignee</h3>
+              <p class="section-subtitle">Client company name, tax identifiers, registered address, and solar site location.</p>
+            </div>
+          </div>
+
+          <div class="form-grid-2col">
+            <div class="form-field-block">
+              <label for="client_name" class="field-label">
+                <span class="field-name">Client / Developer Firm Name</span>
+                <span class="field-badge required">Required</span>
+              </label>
+              <input
+                type="text"
+                id="client_name"
+                name="client_name"
+                class="form-control"
+                value="<%= invoice.client_name || '' %>"
+                required
+                placeholder="e.g. Tata Power Renewable Energy Limited"
+              >
+              <span class="field-hint">Legal entity billed for the contract</span>
+            </div>
+
+            <div class="form-field-block">
+              <label for="clientGstinInput" class="field-label">
+                <span class="field-name">Client GSTIN</span>
+                <span class="field-badge optional">15 Digits</span>
+              </label>
+              <input
+                type="text"
+                id="clientGstinInput"
+                name="client_gstin"
+                class="form-control font-mono"
+                value="<%= invoice.client_gstin || '' %>"
+                placeholder="e.g. 08AAACT2727Q1ZW"
+                maxlength="15"
+              >
+              <span class="field-hint">Auto-configures Intra vs Inter-State supply type</span>
+            </div>
+          </div>
+
+          <div class="form-grid-3col">
+            <div class="form-field-block">
+              <label for="client_pan" class="field-label">
+                <span class="field-name">Client PAN Number</span>
+                <span class="field-badge optional">10 Digits</span>
+              </label>
+              <input
+                type="text"
+                id="client_pan"
+                name="client_pan"
+                class="form-control font-mono"
+                value="<%= invoice.client_pan || '' %>"
+                placeholder="e.g. AAACT2727Q"
+                maxlength="10"
+              >
+              <span class="field-hint">Permanent Account Number</span>
+            </div>
+
+            <div class="form-field-block">
+              <label for="client_state" class="field-label">
+                <span class="field-name">Client State</span>
+                <span class="field-badge required">Required</span>
+              </label>
+              <input
+                type="text"
+                id="client_state"
+                name="client_state"
+                class="form-control"
+                value="<%= invoice.client_state || 'Rajasthan' %>"
+                required
+                placeholder="e.g. Rajasthan"
+              >
+              <span class="field-hint">Buyer's registered jurisdiction</span>
+            </div>
+
+            <div class="form-field-block">
+              <label for="place_of_supply" class="field-label">
+                <span class="field-name">Place of Supply (POS)</span>
+                <span class="field-badge required">Required</span>
+              </label>
+              <input
+                type="text"
+                id="place_of_supply"
+                name="place_of_supply"
+                class="form-control"
+                value="<%= invoice.place_of_supply || 'Rajasthan (08)' %>"
+                required
+                placeholder="e.g. Rajasthan (08)"
+              >
+              <span class="field-hint">State and 2-digit GST state code</span>
+            </div>
+          </div>
+
+          <div class="form-grid-2col">
+            <div class="form-field-block">
+              <label for="client_address" class="field-label">
+                <span class="field-name">Client Registered Billing Address</span>
+                <span class="field-badge optional">Tax Invoice Address</span>
+              </label>
+              <textarea
+                id="client_address"
+                name="client_address"
+                class="form-control form-textarea"
+                rows="2"
+                placeholder="e.g. Corporate Headquarters, 34-B Commercial Tower, Jaipur, Rajasthan - 302001"
+              ><%= invoice.client_address || '' %></textarea>
+              <span class="field-hint">Full billing address printed on tax invoice</span>
+            </div>
+
+            <div class="form-field-block">
+              <label for="project_site" class="field-label">
+                <span class="field-name">Project Site &amp; Shipped Consignee</span>
+                <span class="field-badge required">Required</span>
+              </label>
+              <textarea
+                id="project_site"
+                name="project_site"
+                class="form-control form-textarea"
+                rows="2"
+                required
+                placeholder="e.g. 50 MW Solar PV Plant, Village Sanchore, District Jalore, Rajasthan"
+              ><%= invoice.project_site || '' %></textarea>
+              <span class="field-hint">Physical site location where civil work was executed</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================================================
+             SECTION 3: LINE ITEMS & CIVIL SCOPE (SOLAR INDUSTRY SPECIFIC)
+             ========================================================================= -->
+        <section class="form-section-card">
+          <div class="section-card-title items-title-bar">
+            <div>
+              <span class="sec-badge">03</span>
+              <div>
+                <h3>Solar &amp; Wind Civil Scope Line Items</h3>
+                <p class="section-subtitle">Enter description, HSN/SAC code, unit of measurement, quantity, and rate.</p>
+              </div>
+            </div>
+
+            <!-- Quick Preset Chips for Solar Industry -->
+            <div class="solar-presets-box">
+              <span class="preset-label">⚡ 1-Click Solar Presets:</span>
+              <button
+                type="button"
+                class="preset-pill js-preset-btn"
+                data-desc="MMS Piling &amp; Foundation Works for Solar PV (Bored cast-in-situ concrete piles with rebar cage)"
+                data-sac="995434"
+                data-unit="MW"
+                data-qty="10"
+                data-rate="185000"
+              >
+                ＋ MMS Piling (MW)
+              </button>
+              <button
+                type="button"
+                class="preset-pill js-preset-btn"
+                data-desc="Construction of 33kV Main Control Room (MCR) Building, Inverter Room Plinths &amp; Transformer Yard Foundations"
+                data-sac="995423"
+                data-unit="Nos"
+                data-qty="4"
+                data-rate="320000"
+              >
+                ＋ Inverter Plinths (Nos)
+              </button>
+              <button
+                type="button"
+                class="preset-pill js-preset-btn"
+                data-desc="Internal Heavy-Haul Arterial Access Road Compaction, WBM Sub-base &amp; Perimeter Patrol Pathway"
+                data-sac="995431"
+                data-unit="R.Mtr"
+                data-qty="1500"
+                data-rate="480"
+              >
+                ＋ Access Roads (R.Mtr)
+              </button>
+              <button
+                type="button"
+                class="preset-pill js-preset-btn"
+                data-desc="Storm Water Contour Drainage Trench Excavation, Stone Pitching &amp; Monsoon Desilting Network"
+                data-sac="995469"
+                data-unit="Cu.M"
+                data-qty="2500"
+                data-rate="260"
+              >
+                ＋ Storm Drainage (Cu.M)
+              </button>
+              <button
+                type="button"
+                class="preset-pill js-preset-btn"
+                data-desc="Perimeter Security Fencing, Precast RCC Posts, Concertina Barbed Wire &amp; Main Entry Security Gate"
+                data-sac="995421"
+                data-unit="R.Mtr"
+                data-qty="2000"
+                data-rate="380"
+              >
+                ＋ Perimeter Fence (R.Mtr)
+              </button>
+            </div>
+          </div>
+
+          <!-- Items Table -->
+          <div class="table-responsive">
+            <table class="invoice-items-entry-table" id="itemsTable">
+              <thead>
+                <tr>
+                  <th style="width: 4%;">#</th>
+                  <th style="width: 42%;">Description of Civil Scope / Deliverables</th>
+                  <th style="width: 12%;">HSN/SAC</th>
+                  <th style="width: 11%;">Unit</th>
+                  <th style="width: 10%;">Qty</th>
+                  <th style="width: 11%;">Rate (₹)</th>
+                  <th style="width: 14%;">Amount (₹)</th>
+                  <th style="width: 4%; text-align: center;"></th>
+                </tr>
+              </thead>
+              <tbody id="itemsBody">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-actions-row">
+            <button type="button" class="button button-outline add-item-btn" id="addCustomItemBtn">
+              <span>＋ Add Custom Scope Item</span>
+            </button>
+            <span class="table-hint-text">Each line item calculates instantly with your subtotal and tax amounts.</span>
+          </div>
+        </section>
+
+        <!-- =========================================================================
+             SECTION 4: REMITTANCE BANK DETAILS & TAX COMPUTATION
+             ========================================================================= -->
+        <section class="form-section-card">
+          <div class="section-card-title">
+            <span class="sec-badge">04</span>
+            <div>
+              <h3>Bank Remittance Details &amp; Tax Computation</h3>
+              <p class="section-subtitle">Banking credentials for RTGS/NEFT payments and automatic GST breakdown.</p>
+            </div>
+          </div>
+
+          <div class="tax-computation-grid">
+            <!-- Left Column: Bank Details & Terms -->
+            <div class="bank-details-form">
+              <h4 class="subhead-title">Official Bank Account for RTGS / NEFT</h4>
+              <div class="form-grid-2col">
+                <div class="form-field-block">
+                  <label for="bank_name" class="field-label">
+                    <span class="field-name">Bank Name</span>
+                  </label>
+                  <input type="text" id="bank_name" name="bank_name" class="form-control" value="<%= invoice.bank_name || 'State Bank of India' %>">
+                </div>
+                <div class="form-field-block">
+                  <label for="bank_account_no" class="field-label">
+                    <span class="field-name">Account Number</span>
+                  </label>
+                  <input type="text" id="bank_account_no" name="bank_account_no" class="form-control font-mono" value="<%= invoice.bank_account_no || '38920194821' %>">
+                </div>
+              </div>
+
+              <div class="form-grid-2col">
+                <div class="form-field-block">
+                  <label for="bank_ifsc" class="field-label">
+                    <span class="field-name">IFSC Code</span>
+                  </label>
+                  <input type="text" id="bank_ifsc" name="bank_ifsc" class="form-control font-mono" value="<%= invoice.bank_ifsc || 'SBIN0031168' %>">
+                </div>
+                <div class="form-field-block">
+                  <label for="bank_branch" class="field-label">
+                    <span class="field-name">Branch Location</span>
+                  </label>
+                  <input type="text" id="bank_branch" name="bank_branch" class="form-control" value="<%= invoice.bank_branch || 'Jalore Main Branch, Rajasthan' %>">
+                </div>
+              </div>
+
+              <div class="form-field-block" style="margin-top: 14px;">
+                <label for="terms_conditions" class="field-label">
+                  <span class="field-name">Statutory Terms &amp; Payment Conditions</span>
+                </label>
+                <textarea id="terms_conditions" name="terms_conditions" class="form-control form-textarea" rows="3"><%= invoice.terms_conditions || '1. Certified that the particulars given above are true and correct.\n2. Payment terms: 100% within 30 days of invoice presentation.\n3. Interest @ 18% p.a. applicable on delayed payments.\n4. Subject to Jalore / Jodhpur jurisdiction only.' %></textarea>
+                <span class="field-hint">Printed on the bottom of client invoice paper</span>
+              </div>
+            </div>
+
+            <!-- Right Column: GST Calculation Summary Card -->
+            <div class="tax-summary-box">
+              <h4 class="subhead-title">Supply Classification &amp; GST</h4>
+
+              <div class="tax-mode-toggle">
+                <label class="radio-label">
+                  <input type="radio" name="tax_type" value="intra" id="taxIntra">
+                  <span>
+                    <strong>Intra-State Supply (Rajasthan &rarr; Rajasthan)</strong>
+                    <small>CGST @ 9% + SGST @ 9% (Total 18%)</small>
+                  </span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="tax_type" value="inter" id="taxInter">
+                  <span>
+                    <strong>Inter-State Supply (Out-of-State Client)</strong>
+                    <small>IGST @ 18% (Integrated Goods &amp; Service Tax)</small>
+                  </span>
+                </label>
+              </div>
+
+              <div class="calc-table-wrap">
+                <div class="calc-row">
+                  <span>Total Taxable Value (Subtotal):</span>
+                  <strong id="displaySubtotal">₹ 0.00</strong>
+                  <input type="hidden" name="subtotal" id="inputSubtotal" value="<%= invoice.subtotal || 0 %>">
+                </div>
+
+                <div class="calc-row" id="cgstRow">
+                  <span>CGST @ 9%:</span>
+                  <strong id="displayCgst">₹ 0.00</strong>
+                  <input type="hidden" name="cgst_rate" id="inputCgstRate" value="9">
+                  <input type="hidden" name="cgst_amount" id="inputCgstAmount" value="<%= invoice.cgst_amount || 0 %>">
+                </div>
+
+                <div class="calc-row" id="sgstRow">
+                  <span>SGST @ 9%:</span>
+                  <strong id="displaySgst">₹ 0.00</strong>
+                  <input type="hidden" name="sgst_rate" id="inputSgstRate" value="9">
+                  <input type="hidden" name="sgst_amount" id="inputSgstAmount" value="<%= invoice.sgst_amount || 0 %>">
+                </div>
+
+                <div class="calc-row" id="igstRow" style="display:none;">
+                  <span>IGST @ 18%:</span>
+                  <strong id="displayIgst">₹ 0.00</strong>
+                  <input type="hidden" name="igst_rate" id="inputIgstRate" value="18">
+                  <input type="hidden" name="igst_amount" id="inputIgstAmount" value="<%= invoice.igst_amount || 0 %>">
+                </div>
+
+                <div class="calc-row total-calc-row">
+                  <span>Grand Total (Payable Amount):</span>
+                  <strong id="displayTotal" class="grand-total-highlight">₹ 0.00</strong>
+                  <input type="hidden" name="total_amount" id="inputTotalAmount" value="<%= invoice.total_amount || 0 %>">
+                </div>
+              </div>
+
+              <div class="words-calc-box">
+                <span class="words-label">AMOUNT IN WORDS (INR):</span>
+                <p id="displayAmountInWords" class="words-content">INR Zero Only</p>
+                <input type="hidden" name="amount_in_words" id="inputAmountInWords" value="<%= invoice.amount_in_words || '' %>">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Form Actions Bar -->
+        <div class="invoice-form-footer">
+          <a class="button button-outline" href="/admin/invoices">Discard &amp; Back</a>
+          <div class="editor-actions">
+            <button class="button button-dark" type="submit">
+              <span><%= isNew ? 'Save & Generate GST Tax Invoice' : 'Update Tax Invoice' %></span>
+              <span aria-hidden="true">↗</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </main>
+
+    <!-- INVOICE SCRIPT: RELIABLE DYNAMIC ROWS & REAL-TIME CALCULATIONS -->
+    <script>
+      (function() {
+        const initialItems = <%- JSON.stringify(invoice.items && invoice.items.length ? invoice.items : [
+          {
+            description: "Civil Foundation & MMS Piling Works for Solar PV Power Plant as per approved engineering drawings",
+            sac_code: "995434",
+            unit: "MW",
+            quantity: 5,
+            rate: 185000,
+            amount: 925000
+          }
+        ]) %>;
+
+        const isInterInitial = <%= Number(invoice.igst_amount || 0) > 0 ? 'true' : 'false' %>;
+        const tbody = document.getElementById("itemsBody");
+
+        function createItemRow(data = {}) {
+          const tr = document.createElement("tr");
+          tr.className = "item-row";
+
+          const desc = data.description || "";
+          const sac = data.sac_code || "995434";
+          const unit = data.unit || "MW";
+          const qty = data.quantity !== undefined ? data.quantity : 1;
+          const rate = data.rate !== undefined ? data.rate : 0;
+          const amount = (Number(qty) || 0) * (Number(rate) || 0);
+
+          tr.innerHTML = `
+            <td class="row-num text-center font-mono"></td>
+            <td>
+              <textarea name="item_description[]" rows="2" class="form-control item-desc-input" required placeholder="Detailed civil scope description">${escapeHtml(desc)}</textarea>
+            </td>
+            <td>
+              <input type="text" name="item_sac[]" class="form-control item-sac-input font-mono" value="${escapeHtml(sac)}" required placeholder="995434">
+            </td>
+            <td>
+              <select name="item_unit[]" class="form-control item-unit-select">
+                <option value="MW" ${unit === 'MW' ? 'selected' : ''}>MW</option>
+                <option value="Cu.M" ${unit === 'Cu.M' ? 'selected' : ''}>Cu.M</option>
+                <option value="Sq.M" ${unit === 'Sq.M' ? 'selected' : ''}>Sq.M</option>
+                <option value="R.Mtr" ${unit === 'R.Mtr' ? 'selected' : ''}>R.Mtr</option>
+                <option value="Nos" ${unit === 'Nos' ? 'selected' : ''}>Nos</option>
+                <option value="MT" ${unit === 'MT' ? 'selected' : ''}>MT</option>
+                <option value="L.S." ${unit === 'L.S.' ? 'selected' : ''}>Lump Sum</option>
+              </select>
+            </td>
+            <td>
+              <input type="number" step="any" min="0" name="item_quantity[]" class="form-control item-qty-input font-mono" value="${qty}" required>
+            </td>
+            <td>
+              <input type="number" step="any" min="0" name="item_rate[]" class="form-control item-rate-input font-mono" value="${rate}" required>
+            </td>
+            <td>
+              <strong class="item-row-amount font-mono">₹ ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong>
+            </td>
+            <td class="text-center">
+              <button type="button" class="del-row-btn" title="Remove line item">×</button>
+            </td>
+          `;
+
+          // Bind event listeners to this specific row
+          const qtyInput = tr.querySelector(".item-qty-input");
+          const rateInput = tr.querySelector(".item-rate-input");
+          const delBtn = tr.querySelector(".del-row-btn");
+
+          qtyInput.addEventListener("input", calculateTotals);
+          rateInput.addEventListener("input", calculateTotals);
+
+          delBtn.addEventListener("click", function() {
+            const allRows = tbody.querySelectorAll(".item-row");
+            if (allRows.length <= 1) {
+              alert("An invoice must contain at least one civil work line item.");
+              return;
+            }
+            tr.remove();
+            renumberRows();
+            calculateTotals();
+          });
+
+          return tr;
+        }
+
+        function renumberRows() {
+          const rows = tbody.querySelectorAll(".item-row");
+          rows.forEach((r, idx) => {
+            const numCell = r.querySelector(".row-num");
+            if (numCell) numCell.textContent = String(idx + 1);
+          });
+        }
+
+        function appendRow(itemData) {
+          const tr = createItemRow(itemData);
+          tbody.appendChild(tr);
+          renumberRows();
+          calculateTotals();
+        }
+
+        function escapeHtml(str) {
+          if (!str) return "";
+          return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+
+        function numberToWordsINR(amount) {
+          const num = Math.round(Number(amount) || 0);
+          if (num === 0) return "INR Zero Only";
+
+          const a = [
+            "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+            "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
+            "Seventeen", "Eighteen", "Nineteen"
+          ];
+          const b = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+          function convertHundreds(n) {
+            let str = "";
+            if (n > 99) {
+              str += a[Math.floor(n / 100)] + " Hundred ";
+              n %= 100;
+            }
+            if (n > 19) {
+              str += b[Math.floor(n / 10)] + (n % 10 ? " " + a[n % 10] : "");
+            } else if (n > 0) {
+              str += a[n];
+            }
+            return str.trim();
+          }
+
+          let crore = Math.floor(num / 10000000);
+          let remainder = num % 10000000;
+          let lakh = Math.floor(remainder / 100000);
+          remainder = remainder % 100000;
+          let thousand = Math.floor(remainder / 1000);
+          remainder = remainder % 1000;
+          let hundreds = remainder;
+
+          let words = "";
+          if (crore > 0) words += convertHundreds(crore) + " Crore ";
+          if (lakh > 0) words += convertHundreds(lakh) + " Lakh ";
+          if (thousand > 0) words += convertHundreds(thousand) + " Thousand ";
+          if (hundreds > 0) words += convertHundreds(hundreds);
+
+          return "INR " + words.trim() + " Only";
+        }
+
+        function calculateTotals() {
+          const rows = tbody.querySelectorAll(".item-row");
+          let subtotal = 0;
+
+          rows.forEach((row) => {
+            const qty = Number(row.querySelector(".item-qty-input").value) || 0;
+            const rate = Number(row.querySelector(".item-rate-input").value) || 0;
+            const lineTotal = Math.round(qty * rate * 100) / 100;
+            subtotal += lineTotal;
+            row.querySelector(".item-row-amount").textContent = "₹ " + lineTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+          });
+
+          subtotal = Math.round(subtotal * 100) / 100;
+          const isInter = document.getElementById("taxInter").checked;
+          let cgst = 0, sgst = 0, igst = 0;
+
+          if (isInter) {
+            igst = Math.round(subtotal * 0.18 * 100) / 100;
+            document.getElementById("cgstRow").style.display = "none";
+            document.getElementById("sgstRow").style.display = "none";
+            document.getElementById("igstRow").style.display = "flex";
+            document.getElementById("inputCgstAmount").value = 0;
+            document.getElementById("inputSgstAmount").value = 0;
+            document.getElementById("inputIgstAmount").value = igst;
+          } else {
+            cgst = Math.round(subtotal * 0.09 * 100) / 100;
+            sgst = Math.round(subtotal * 0.09 * 100) / 100;
+            document.getElementById("cgstRow").style.display = "flex";
+            document.getElementById("sgstRow").style.display = "flex";
+            document.getElementById("igstRow").style.display = "none";
+            document.getElementById("inputCgstAmount").value = cgst;
+            document.getElementById("inputSgstAmount").value = sgst;
+            document.getElementById("inputIgstAmount").value = 0;
+          }
+
+          const grandTotal = Math.round((subtotal + cgst + sgst + igst) * 100) / 100;
+          const words = numberToWordsINR(grandTotal);
+
+          document.getElementById("displaySubtotal").textContent = "₹ " + subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+          document.getElementById("displayCgst").textContent = "₹ " + cgst.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+          document.getElementById("displaySgst").textContent = "₹ " + sgst.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+          document.getElementById("displayIgst").textContent = "₹ " + igst.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+          document.getElementById("displayTotal").textContent = "₹ " + grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+          document.getElementById("displayAmountInWords").textContent = words;
+
+          document.getElementById("inputSubtotal").value = subtotal;
+          document.getElementById("inputTotalAmount").value = grandTotal;
+          document.getElementById("inputAmountInWords").value = words;
+        }
+
+        // Initialize table with initialItems
+        initialItems.forEach(item => {
+          tbody.appendChild(createItemRow(item));
+        });
+        renumberRows();
+
+        // 1-Click Preset Buttons Event Listeners
+        document.querySelectorAll(".js-preset-btn").forEach(btn => {
+          btn.addEventListener("click", function(e) {
+            e.preventDefault();
+            const desc = this.getAttribute("data-desc");
+            const sac = this.getAttribute("data-sac");
+            const unit = this.getAttribute("data-unit");
+            const qty = Number(this.getAttribute("data-qty")) || 1;
+            const rate = Number(this.getAttribute("data-rate")) || 0;
+
+            appendRow({
+              description: desc,
+              sac_code: sac,
+              unit: unit,
+              quantity: qty,
+              rate: rate
+            });
+          });
+        });
+
+        // Add Custom Item Button Listener
+        document.getElementById("addCustomItemBtn").addEventListener("click", function(e) {
+          e.preventDefault();
+          appendRow({
+            description: "",
+            sac_code: "995423",
+            unit: "Nos",
+            quantity: 1,
+            rate: 0
+          });
+        });
+
+        // Tax Radio Toggles Listener
+        document.getElementById("taxIntra").addEventListener("change", calculateTotals);
+        document.getElementById("taxInter").addEventListener("change", calculateTotals);
+
+        if (isInterInitial) {
+          document.getElementById("taxInter").checked = true;
+        } else {
+          document.getElementById("taxIntra").checked = true;
+        }
+
+        // Auto-detect tax type from client GSTIN
+        document.getElementById("clientGstinInput").addEventListener("input", function(e) {
+          const val = e.target.value.trim();
+          if (val.length >= 2) {
+            const stateCode = val.substring(0, 2);
+            if (stateCode === "08") {
+              document.getElementById("taxIntra").checked = true;
+            } else if (parseInt(stateCode, 10) > 0) {
+              document.getElementById("taxInter").checked = true;
+            }
+            calculateTotals();
+          }
+        });
+
+        calculateTotals();
+      })();
+    </script>
+    <script src="/js/main.js?v=3" defer></script>
+  </body>
+</html>

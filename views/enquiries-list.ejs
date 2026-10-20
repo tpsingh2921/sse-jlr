@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#071a14">
+    <meta name="robots" content="noindex, nofollow">
+    <title>⚡ Client Enquiries | Shree Shantinath Enterprises</title>
+    <link rel="icon" type="image/svg+xml" href="/favicons/favicon-enquiries.svg?v=7">
+    <link rel="shortcut icon" href="/favicons/favicon-enquiries.svg?v=7">
+    <link rel="apple-touch-icon" href="/favicons/favicon-enquiries.svg?v=7">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css?v=14">
+    <script>
+      (function() {
+        var t = localStorage.getItem('sse_theme');
+        if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
+  </head>
+  <body class="letterhead-admin admin-hub-body">
+    <!-- Top Global Admin Bar -->
+    <header class="site-header admin-global-header">
+      <div class="nav-wrap">
+        <a class="brand" href="/" aria-label="Shree Shantinath Enterprises home">
+          <span class="brand-mark" aria-hidden="true">
+            <img src="/images/brand-mark.svg" alt="" width="40" height="40">
+          </span>
+          <span class="brand-name">SHREE SHANTINATH <b>ENTERPRISES</b></span>
+        </a>
+
+        <!-- Admin Navigation Tabs -->
+        <nav class="admin-top-tabs">
+          <a href="/letterhead" class="admin-tab">
+            <span class="tab-icon">📄</span> Letterheads
+          </a>
+          <a href="/admin/invoices" class="admin-tab">
+            <span class="tab-icon">🧾</span> Tax Invoices
+          </a>
+          <a href="/admin/enquiries" class="admin-tab is-active">
+            <span class="tab-icon">📬</span> Client Enquiries
+            <% if (enquiries && enquiries.length > 0) { %>
+              <span class="tab-count-badge"><%= enquiries.length %></span>
+            <% } %>
+          </a>
+        </nav>
+
+        <div class="admin-header-actions">
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle dark mode theme" title="Toggle gradient dark theme">
+            <span class="sun-icon" style="display:none;">☀️</span>
+            <span class="moon-icon">🌙</span>
+            <span class="theme-toggle-label">Dark</span>
+          </button>
+          <% if (locals.adminUser) { %>
+            <div class="admin-user-pill">
+              <span class="user-status-dot"></span>
+              <span><%= adminUser.name %></span>
+            </div>
+          <% } %>
+          <a class="admin-back-link" href="/" target="_blank">View Site ↗</a>
+          <form action="/letterhead/logout" method="post" style="margin:0;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="admin-link-button" type="submit">Sign out</button>
+          </form>
+        </div>
+      </div>
+    </header>
+
+    <main class="admin-main admin-main-wide">
+      <div class="admin-page-heading">
+        <div>
+          <p class="eyebrow"><span class="eyebrow-line"></span> CLIENT LEAD MANAGEMENT</p>
+          <h1>Client Project <span>Enquiries.</span></h1>
+          <p class="admin-description">
+            Track, update status, and manage prospective developer and EPC contractor RFQs received through your public website contact form in real-time.
+          </p>
+        </div>
+        <div class="admin-heading-actions">
+          <a class="button button-outline" href="/#contact" target="_blank" rel="noopener">
+            <span>Test Public Form</span> ↗
+          </a>
+        </div>
+      </div>
+
+      <% if (locals.deleted) { %>
+        <p class="admin-alert admin-alert-success" role="status">Client enquiry deleted successfully.</p>
+      <% } %>
+      <% if (locals.statusUpdated) { %>
+        <p class="admin-alert admin-alert-success" role="status">Client enquiry status updated successfully.</p>
+      <% } %>
+
+      <!-- Enquiry KPI Metrics Band -->
+      <div class="invoice-metrics-band">
+        <div class="inv-metric-card">
+          <span class="inv-metric-label">TOTAL LEADS</span>
+          <strong class="inv-metric-val text-green"><%= enquiries.length %></strong>
+          <small>Direct Submissions</small>
+        </div>
+        <div class="inv-metric-card">
+          <span class="inv-metric-label">NEW / UNTOUCHED</span>
+          <strong class="inv-metric-val" style="color: #0284c7;">
+            <%= enquiries.filter(e => !e.status || e.status === 'New').length %>
+          </strong>
+          <small>Requires Contact</small>
+        </div>
+        <div class="inv-metric-card">
+          <span class="inv-metric-label">IN PIPELINE</span>
+          <strong class="inv-metric-val" style="color: #d97706;">
+            <%= enquiries.filter(e => ['In Discussion', 'Site Visit Scheduled', 'Quotation Sent'].includes(e.status)).length %>
+          </strong>
+          <small>Discussion &amp; Quotations</small>
+        </div>
+        <div class="inv-metric-card">
+          <span class="inv-metric-label">CONVERTED / WON</span>
+          <strong class="inv-metric-val" style="color: #10b981;">
+            <%= enquiries.filter(e => e.status === 'Converted / Won').length %>
+          </strong>
+          <small>Active Project Contracts</small>
+        </div>
+      </div>
+
+      <% if (enquiries.length) { %>
+        <div class="enquiries-cards-container">
+          <% enquiries.forEach((enq, index) => { %>
+            <% const currentStatus = enq.status || 'New'; %>
+            <article class="enquiry-card">
+              <div class="enquiry-card-header">
+                <div class="enquiry-client-info">
+                  <div class="client-avatar">
+                    <%= (enq.name || 'C').charAt(0).toUpperCase() %>
+                  </div>
+                  <div>
+                    <h2 class="client-name-title"><%= enq.name || 'Anonymous Client' %></h2>
+                    <% if (enq.company) { %>
+                      <span class="client-company-tag">🏢 <%= enq.company %></span>
+                    <% } %>
+                  </div>
+                </div>
+
+                <!-- Status Selector & Action Controls -->
+                <div class="enquiry-meta-header">
+                  <!-- Live Status Selector Dropdown -->
+                  <form action="/admin/enquiries/<%= enq.id %>/status" method="post" class="status-badge-form">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <span class="status-indicator-dot status-dot-<%= currentStatus.toLowerCase().replace(/[^a-z0-9]/g, '-') %>"></span>
+                    <select name="status" class="status-dropdown-select status-select-<%= currentStatus.toLowerCase().replace(/[^a-z0-9]/g, '-') %>" onchange="this.form.submit()" aria-label="Change enquiry status" title="Click to update lead status">
+                      <option value="New" <%= currentStatus === 'New' ? 'selected' : '' %>>🟢 New Lead</option>
+                      <option value="In Discussion" <%= currentStatus === 'In Discussion' ? 'selected' : '' %>>💬 In Discussion</option>
+                      <option value="Site Visit Scheduled" <%= currentStatus === 'Site Visit Scheduled' ? 'selected' : '' %>>📍 Site Visit Scheduled</option>
+                      <option value="Quotation Sent" <%= currentStatus === 'Quotation Sent' ? 'selected' : '' %>>📋 Quotation Sent</option>
+                      <option value="Converted / Won" <%= currentStatus === 'Converted / Won' ? 'selected' : '' %>>🏆 Converted / Won</option>
+                      <option value="Closed / Archived" <%= currentStatus === 'Closed / Archived' ? 'selected' : '' %>>📁 Closed / Archived</option>
+                    </select>
+                  </form>
+
+                  <span class="enquiry-time-badge">
+                    <% if (enq.createdAt) { %>
+                      <%= new Date(enq.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' }) %> (IST)
+                    <% } else { %>
+                      Undated
+                    <% } %>
+                  </span>
+
+                  <form action="/admin/enquiries/<%= enq.id %>/delete" method="post" data-confirm-delete="<%= enq.name %>" style="margin:0;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="admin-danger-button" title="Delete enquiry">Delete</button>
+                  </form>
+                </div>
+              </div>
+
+              <!-- Quick Contact Row -->
+              <div class="enquiry-contact-bar">
+                <% if (enq.email) { %>
+                  <a href="mailto:<%= enq.email %>?subject=Re: Shree Shantinath Enterprises Project Enquiry" class="contact-pill-btn">
+                    <span>✉</span> <%= enq.email %>
+                  </a>
+                <% } %>
+                <% if (enq.phone) { %>
+                  <a href="tel:<%= enq.phone %>" class="contact-pill-btn">
+                    <span>📞</span> <%= enq.phone %>
+                  </a>
+                  <a href="https://wa.me/<%= enq.phone.replace(/\D/g, '') %>" target="_blank" rel="noopener" class="contact-pill-btn whatsapp-pill">
+                    <span>💬</span> WhatsApp
+                  </a>
+                <% } %>
+                <% if (enq.location) { %>
+                  <span class="location-tag">
+                    <span>📍</span> Location: <b><%= enq.location %></b>
+                  </span>
+                <% } %>
+                <% if (enq.timeline) { %>
+                  <span class="timeline-tag">
+                    <span>⏱</span> Timeline: <b><%= enq.timeline %></b>
+                  </span>
+                <% } %>
+              </div>
+
+              <!-- Project Type & Requirements Box -->
+              <div class="enquiry-scope-section">
+                <% if (enq.projectType) { %>
+                  <div class="project-type-pill">
+                    <strong>Project Category:</strong> <%= enq.projectType %>
+                  </div>
+                <% } %>
+                <div class="requirements-box">
+                  <span class="req-label">CLIENT REQUIREMENTS &amp; SCOPE:</span>
+                  <p class="requirements-text"><%= enq.requirements || 'No specific requirements detailed.' %></p>
+                </div>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <section class="admin-empty-card">
+          <span class="empty-icon-spark">📬</span>
+          <h2>No Client Enquiries Yet</h2>
+          <p>When prospective developers or EPC contractors fill out the project form on the homepage, their details and technical scope will appear here immediately.</p>
+          <a class="button button-dark" href="/#contact" target="_blank">
+            <span>View Public Website Form</span> ↗
+          </a>
+        </section>
+      <% } %>
+    </main>
+
+    <script src="/js/letterhead.js" defer></script>
+    <script src="/js/main.js?v=3" defer></script>
+  </body>
+</html>

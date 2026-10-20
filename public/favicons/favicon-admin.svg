@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="adminBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="60%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#030712"/>
+    </linearGradient>
+    <linearGradient id="adminEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="50%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="adminGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <!-- Security Shield Base -->
+  <path d="M32 4 C48 10 56 12 56 26 C56 44 44 56 32 60 C20 56 8 44 8 26 C8 12 16 10 32 4 Z" fill="url(#adminBg)" stroke="url(#adminEmerald)" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Inner Shield Accent -->
+  <path d="M32 10 C43 15 49 17 49 27 C49 41 39 50 32 54 C25 50 15 41 15 27 C15 17 21 15 32 10 Z" fill="none" stroke="url(#adminEmerald)" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>
+  <!-- Padlock Shackle -->
+  <path d="M25 28 L25 23 C25 19 28 16 32 16 C36 16 39 19 39 23 L39 28" fill="none" stroke="url(#adminGold)" stroke-width="3" stroke-linecap="round"/>
+  <!-- Padlock Body -->
+  <rect x="21" y="28" width="22" height="18" rx="4" fill="url(#adminGold)" stroke="#0d2820" stroke-width="1"/>
+  <!-- Keyhole -->
+  <circle cx="32" cy="35" r="2.5" fill="#0d2820"/>
+  <polygon points="30.5,35 33.5,35 34,41 30,41" fill="#0d2820"/>
+</svg>

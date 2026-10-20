@@ -3,86 +3,248 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f7f8f2">
+    <meta name="theme-color" content="#071a14">
     <meta name="robots" content="noindex, nofollow">
-    <title><%= isNew ? 'New document' : 'Edit document' %> | Letterhead | Shree Shantinath Enterprises</title>
-    <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml">
+    <title>⚡ <%= isNew ? 'New Document' : 'Edit Document' %> | Letterhead | Shree Shantinath Enterprises</title>
+    <link rel="icon" type="image/svg+xml" href="/favicons/favicon-letterhead.svg?v=7">
+    <link rel="shortcut icon" href="/favicons/favicon-letterhead.svg?v=7">
+    <link rel="apple-touch-icon" href="/favicons/favicon-letterhead.svg?v=7">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=5">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css?v=10">
+    <script>
+      (function() {
+        var t = localStorage.getItem('sse_theme');
+        if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
   </head>
-  <body class="letterhead-admin">
-    <header class="site-header">
+  <body class="letterhead-admin admin-hub-body">
+    <!-- Top Global Admin Bar -->
+    <header class="site-header admin-global-header">
       <div class="nav-wrap">
         <a class="brand" href="/" aria-label="Shree Shantinath Enterprises home">
-          <span class="brand-mark" aria-hidden="true"><img src="/images/brand-mark.svg" alt="" width="48" height="48"></span>
+          <span class="brand-mark" aria-hidden="true">
+            <img src="/images/brand-mark.svg" alt="" width="40" height="40">
+          </span>
           <span class="brand-name">SHREE SHANTINATH <b>ENTERPRISES</b></span>
         </a>
-        <a class="admin-back-link" href="/letterhead">← All documents</a>
+
+        <!-- Admin Navigation Tabs -->
+        <nav class="admin-top-tabs">
+          <a href="/letterhead" class="admin-tab is-active">
+            <span class="tab-icon">📄</span> Letterheads
+          </a>
+          <a href="/admin/invoices" class="admin-tab ">
+            <span class="tab-icon">🧾</span> Tax Invoices
+          </a>
+          <a href="/admin/enquiries" class="admin-tab ">
+            <span class="tab-icon">📬</span> Client Enquiries
+          </a>
+        </nav>
+
+        <div class="admin-header-actions">
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle dark mode theme" title="Toggle gradient dark theme">
+            <span class="sun-icon" style="display:none;">☀️</span>
+            <span class="moon-icon">🌙</span>
+            <span class="theme-toggle-label">Dark</span>
+          </button>
+          <a class="admin-back-link" href="/letterhead">← All Documents</a>
+          <form action="/letterhead/logout" method="post" style="margin:0;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="admin-link-button" type="submit">Sign out</button>
+          </form>
+        </div>
       </div>
     </header>
+
     <main class="admin-main admin-main-wide">
       <div class="admin-page-heading editor-heading">
-        <div><p class="eyebrow"><span class="eyebrow-line"></span> COMPANY LETTERHEAD</p><h1><%= isNew ? 'Create a new' : 'Edit your' %><br><span>document.</span></h1><p class="admin-description">Your saved draft stays private. Download a print-ready PDF when it’s ready.</p></div>
-        <a class="admin-back-link" href="/letterhead">← All documents</a>
+        <div>
+          <p class="eyebrow"><span class="eyebrow-line"></span> EXECUTIVE LETTERHEAD COMPOSER</p>
+          <h1><%= isNew ? 'Compose New' : 'Edit' %> <span>Document.</span></h1>
+          <p class="admin-description">
+            Your draft updates live in the print-ready preview on the right. When finalized, download a crisp vector PDF.
+          </p>
+        </div>
+        <div class="admin-heading-actions">
+          <a class="button button-outline" href="/letterhead">Cancel &amp; Return</a>
+        </div>
       </div>
-      <% if (saved) { %><p class="admin-alert admin-alert-success" role="status">Your changes have been saved.</p><% } %>
-      <% if (error) { %><p class="admin-alert admin-alert-error" role="alert"><%= error %></p><% } %>
+
+      <% if (locals.saved) { %>
+        <p class="admin-alert admin-alert-success" role="status">Your letterhead document has been saved successfully.</p>
+      <% } %>
+      <% if (locals.error) { %>
+        <p class="admin-alert admin-alert-error" role="alert"><%= error %></p>
+      <% } %>
+
       <div class="editor-workspace">
-      <form class="letterhead-editor-form" action="<%= isNew ? '/letterhead/documents' : '/letterhead/documents/' + document.id %>" method="post">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <div class="editor-meta-grid">
-          <label class="editor-title">Document title *<input name="title" maxlength="160" value="<%= document.title %>" placeholder="e.g. Project proposal — Solar Site A" required></label>
-          <label>Date<input name="date" type="date" value="<%= document.document_date ? new Date(document.document_date).toISOString().slice(0, 10) : '' %>"></label>
-          <label>To / recipient<textarea name="recipient" rows="3" maxlength="500" placeholder="Recipient name&#10;Company&#10;Address"><%= document.recipient %></textarea></label>
-          <label>Reference<input name="reference" maxlength="100" value="<%= document.reference %>" placeholder="Optional reference number"></label>
-          <label class="editor-subject">Subject<input name="subject" maxlength="300" value="<%= document.subject %>" placeholder="Optional subject"></label>
-        </div>
-        <label class="editor-body-label">Letter content *<textarea name="content" rows="16" maxlength="20000" placeholder="Write your letter here. Use a blank line between paragraphs." required><%= document.content %></textarea><span class="editor-hint">Plain text is formatted onto the company letterhead when you download the PDF. Long letters continue onto additional letterhead pages.</span></label>
-        <div class="editor-footer">
-          <a class="admin-cancel-link" href="/letterhead">Cancel</a>
-          <div class="editor-actions">
-            <a class="button button-outline" href="/letterhead/template" target="_blank" rel="noopener">Preview letterhead <span aria-hidden="true">↗</span></a>
-            <% if (!isNew) { %><a class="button button-outline" href="/letterhead/documents/<%= document.id %>/download">Download PDF <span aria-hidden="true">↓</span></a><% } %>
-            <button class="button button-dark" type="submit"><%= isNew ? 'Save document' : 'Save changes' %><span aria-hidden="true">↗</span></button>
-          </div>
-        </div>
-      </form>
-      <section class="letterhead-preview" aria-labelledby="letterhead-preview-title">
-        <div class="letterhead-preview-heading">
-          <div><p class="eyebrow"><span class="eyebrow-line"></span> PRINT-READY VIEW</p><h2 id="letterhead-preview-title">Your letterhead.</h2></div>
-          <span class="preview-page-size">A4 · PORTRAIT</span>
-        </div>
-        <p class="live-preview-status" id="live-preview-status" role="status" aria-live="polite">Update any field to refresh the preview.</p>
-        <div class="letterhead-preview-frame">
-          <article class="letterhead-paper" aria-label="A4 print layout preview">
-            <header class="letterhead-paper-header">
-              <span class="paper-logo" aria-hidden="true"><img src="/images/brand-mark.svg" alt="" width="48" height="48"></span>
-              <div class="paper-brand"><strong>SHREE SHANTINATH</strong><b>ENTERPRISES</b><small>CIVIL WORKS&nbsp; · &nbsp;RENEWABLE ENERGY</small></div>
-              <span class="paper-gst">GSTIN<br>08BOKPV8974D1Z5</span>
-            </header>
-            <div class="letterhead-paper-body">
-              <p class="paper-date" id="preview-date"></p>
-              <p class="paper-recipient" id="preview-recipient"></p>
-              <p class="paper-reference" id="preview-reference"></p>
-              <div class="paper-subject"><small>SUBJECT</small><strong id="preview-subject"></strong></div>
-              <div class="paper-divider"></div>
-              <p class="paper-content" id="preview-content"></p>
-              <img class="paper-seal" src="/images/company-seal.png" alt="Shree Shantinath Enterprises proprietor seal">
+        <!-- Editor Form -->
+        <form class="letterhead-editor-form modern-editor-panel" action="<%= isNew ? '/letterhead/documents' : '/letterhead/documents/' + document.id %>" method="post">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          
+          <div class="editor-meta-grid">
+            <label class="editor-title">
+              Internal Title *
+              <input name="title" maxlength="160" value="<%= document.title %>" placeholder="e.g. Work Completion Certificate - Bhadla Solar Park" required>
+            </label>
+
+            <div class="editor-row-2col">
+              <label>
+                Document Date
+                <input name="date" type="date" value="<%= document.document_date ? new Date(document.document_date).toISOString().slice(0, 10) : '' %>">
+              </label>
+              <label>
+                Reference Number
+                <input name="reference" maxlength="100" value="<%= document.reference %>" placeholder="e.g. SSE/TPREL/2026-27/042">
+              </label>
             </div>
-            <footer class="letterhead-paper-footer">
-              <strong>LET’S BUILD A GREENER FUTURE.</strong>
-              <span>+91 96363 20419&nbsp;&nbsp; · &nbsp;&nbsp;+91 78771 27423</span>
-              <span>shreeshantinath.enterprises25@gmail.com</span>
-              <small>JALORE, RAJASTHAN&nbsp; · &nbsp;INDIA</small>
-            </footer>
-          </article>
-        </div>
-        <p class="preview-print-note">The proprietor seal is included without the signature. The preview follows your edits; downloaded PDFs repeat the letterhead on additional pages when needed.</p>
-      </section>
+
+            <label class="editor-recipient-label">
+              To / Recipient Details
+              <textarea name="recipient" rows="3" maxlength="500" placeholder="The Project Director&#10;Tata Power Renewable Energy Limited&#10;Bikaner Solar Park Site, Rajasthan"><%= document.recipient %></textarea>
+            </label>
+
+            <label class="editor-subject">
+              Formal Subject Line
+              <input name="subject" maxlength="300" value="<%= document.subject %>" placeholder="e.g. Handover of 33kV Inverter Room Plinths and Cable Trenches"><span class="field-hint">Highlighted prominently in a formal gold-accented subject banner.</span>
+            </label>
+          </div>
+
+          <label class="editor-body-label">
+            Letter Content *
+            <textarea name="content" rows="18" maxlength="20000" placeholder="Dear Sir/Madam,&#10;&#10;We are pleased to submit the civil foundation hand-over documentation for the 250 MW Solar PV Plant at Bikaner, Rajasthan...&#10;&#10;Use a blank line between paragraphs for clean spacing." required><%= document.content %></textarea>
+            <span class="editor-hint">
+              <strong>Formatting Tip:</strong> Text is automatically formatted with justified alignment, clean line-height (1.65), and balanced margins. If content exceeds a single page, the downloaded PDF automatically continues onto page two.
+            </span>
+          </label>
+
+          <div class="editor-footer">
+            <a class="admin-cancel-link" href="/letterhead">Discard Changes</a>
+            <div class="editor-actions">
+              <a class="button button-outline" href="/letterhead/template" target="_blank" rel="noopener">Preview Template ↗</a>
+              <% if (!isNew) { %>
+                <a class="button button-outline" href="/letterhead/documents/<%= document.id %>/download">Download PDF ↓</a>
+              <% } %>
+              <button class="button button-dark" type="submit">
+                <span><%= isNew ? 'Save Document' : 'Update & Save' %></span>
+                <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <!-- Live Print-Ready Preview -->
+        <section class="letterhead-preview modern-preview-panel" aria-labelledby="letterhead-preview-title">
+          <div class="letterhead-preview-heading">
+            <div>
+              <p class="eyebrow"><span class="eyebrow-line"></span> LIVE PRINT PREVIEW</p>
+              <h2 id="letterhead-preview-title">Official Letterhead</h2>
+            </div>
+            <span class="preview-page-size">A4 FORMAT · 210 × 297 MM</span>
+          </div>
+
+          <p class="live-preview-status" id="live-preview-status" role="status" aria-live="polite">
+            Interactive preview mirrors the downloaded PDF document.
+          </p>
+
+          <div class="letterhead-preview-frame">
+            <article class="letterhead-paper filled-executive-paper" aria-label="A4 print layout preview">
+              <!-- Top Gold Ribbon -->
+              <div class="paper-top-gold-ribbon"></div>
+
+              <!-- Header -->
+              <header class="letterhead-paper-header executive-paper-header">
+                <div class="header-brand-cluster">
+                  <span class="paper-logo" aria-hidden="true">
+                    <img src="/images/brand-mark.svg" alt="" width="52" height="52">
+                  </span>
+                  <div class="paper-brand">
+                    <strong class="firm-main-title">SHREE SHANTINATH ENTERPRISES</strong>
+                    <b class="firm-sub-title">GOVT. CIVIL CONTRACTS, PWD WORKS &bull; CLEAN ENERGY INFRASTRUCTURE</b>
+                    <small class="firm-cert-line">GOVT. REGD. MSME &bull; ISO &amp; SAFETY COMPLIANT (STP &amp; SOS PROTOCOLS)</small>
+                  </div>
+                </div>
+                <div class="paper-tax-block">
+                  <span>GSTIN: <b>08BOKPV8974D1Z5</b></span>
+                  <span>STATE: <b>RAJASTHAN (08)</b></span>
+                </div>
+              </header>
+
+              <!-- Gold Sub-rule -->
+              <div class="paper-gold-accent-rule"></div>
+
+              <!-- Metadata Bar (Date & Ref) -->
+              <div class="paper-meta-bar">
+                <div class="meta-ref-item" id="preview-ref-box">
+                  <span class="meta-lbl">REF NO:</span>
+                  <strong id="preview-reference"></strong>
+                </div>
+                <div class="meta-date-item" id="preview-date-box">
+                  <span class="meta-lbl">DATE:</span>
+                  <strong id="preview-date"></strong>
+                </div>
+              </div>
+
+              <!-- Paper Body -->
+              <div class="letterhead-paper-body executive-paper-body">
+                <!-- Recipient Block -->
+                <div class="paper-recipient-card" id="preview-recipient-wrap">
+                  <span class="to-tag">To,</span>
+                  <p class="paper-recipient" id="preview-recipient"></p>
+                </div>
+
+                <!-- Subject Box -->
+                <div class="paper-subject-banner" id="preview-subject-wrap">
+                  <span class="subject-tag">SUBJECT:</span>
+                  <strong id="preview-subject"></strong>
+                </div>
+
+                <!-- Content Area -->
+                <div class="paper-content-flow" id="preview-content"></div>
+
+                <!-- Sign-off & Seal Block -->
+                <div class="paper-signoff-block" id="preview-signoff-wrap">
+                  <p class="signoff-intro">Yours faithfully,</p>
+                  <p class="signoff-firm">For <strong>SHREE SHANTINATH ENTERPRISES</strong></p>
+                  <div class="signoff-seal-container">
+                    <img class="paper-seal" src="/images/company-seal.png" alt="Shree Shantinath Enterprises proprietor seal">
+                  </div>
+                  <p class="signoff-name"><strong>Harsh Vardhan</strong></p>
+                  <p class="signoff-role">Proprietor / Authorized Signatory</p>
+                </div>
+              </div>
+
+              <!-- Gold Footer Accent -->
+              <div class="paper-gold-footer-rule"></div>
+
+              <!-- Footer -->
+              <footer class="letterhead-paper-footer executive-paper-footer">
+                <div class="footer-row-1">
+                  <strong>HEAD OFFICE:</strong> Jalore, Rajasthan - 343001 &bull; India &bull; Serving Clean Energy Projects Pan-India
+                </div>
+                <div class="footer-row-2">
+                  <span>Phone: +91 96363 20419</span>
+                  <span>Email: shreeshantinath.enterprises25@gmail.com</span>
+                </div>
+                <div class="footer-row-3">
+                  <small>BUILT WITH INTEGRITY &bull; COMMITTED TO ZERO-HARM SAFETY &bull; GOVT. CIVIL CONTRACTS &amp; CLEAN ENERGY INFRASTRUCTURE</small>
+                </div>
+              </footer>
+            </article>
+          </div>
+
+          <p class="preview-print-note">
+            The letterhead follows clean A4 print geometry with 54pt lateral margins. Downloaded PDFs embed high-resolution vector assets.
+          </p>
+        </section>
       </div>
     </main>
-    <script src="/js/letterhead-preview.js?v=5" defer></script>
+    <script src="/js/letterhead-preview.js?v=6" defer></script>
+    <script src="/js/main.js?v=3" defer></script>
   </body>
 </html>

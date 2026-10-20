@@ -1,57 +1,102 @@
 const editorForm = document.querySelector(".letterhead-editor-form");
 const previewStatus = document.querySelector("#live-preview-status");
-const previewSeal = document.querySelector(".paper-seal");
 let previewTimer;
 
 const previewFields = {
   date: document.querySelector("#preview-date"),
-  recipient: document.querySelector("#preview-recipient"),
+  dateBox: document.querySelector("#preview-date-box"),
   reference: document.querySelector("#preview-reference"),
+  refBox: document.querySelector("#preview-ref-box"),
+  recipient: document.querySelector("#preview-recipient"),
+  recipientWrap: document.querySelector("#preview-recipient-wrap"),
   subject: document.querySelector("#preview-subject"),
+  subjectWrap: document.querySelector("#preview-subject-wrap"),
   content: document.querySelector("#preview-content"),
 };
 
-function updateLetterheadPreview() {
-  const values = Object.fromEntries(new FormData(editorForm));
-  const date = values.date
-    ? new Date(`${values.date}T00:00:00`)
-        .toLocaleDateString("en-IN", {
-          day: "2-digit",
-          month: "long",
-          year: "numeric",
-        })
-    : "";
-  const subject = values.subject || values.title;
-
-  previewFields.date.textContent = date;
-  previewFields.recipient.textContent = values.recipient;
-  previewFields.reference.textContent = values.reference
-    ? `Reference: ${values.reference}`
-    : "";
-  previewFields.subject.textContent = subject;
-  previewFields.content.textContent = values.content;
-
-  previewFields.date.hidden = !date;
-  previewFields.recipient.hidden = !values.recipient;
-  previewFields.reference.hidden = !values.reference;
-  previewFields.subject.parentElement.hidden = !subject;
-  previewFields.content.hidden = !values.content;
-  previewFields.content.classList.toggle(
-    "paper-content-continues",
-    values.content.length > 2400,
-  );
-  previewSeal.hidden = values.content.length > 2400;
-
-  previewStatus.textContent =
-    values.content.length > 2400
-      ? "Preview shows page one. The downloaded PDF continues onto additional A4 pages."
-      : "Preview updates as you edit. The PDF download is formatted for A4 printing.";
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
 }
 
-editorForm.addEventListener("input", () => {
-  window.clearTimeout(previewTimer);
-  previewTimer = window.setTimeout(updateLetterheadPreview, 120);
-});
+function updateLetterheadPreview() {
+  if (!editorForm) return;
 
-editorForm.addEventListener("change", updateLetterheadPreview);
-updateLetterheadPreview();
+  const values = Object.fromEntries(new FormData(editorForm));
+  const dateStr = values.date
+    ? new Date(`${values.date}T00:00:00`).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      })
+    : "";
+  const subjectStr = values.subject || values.title || "";
+
+  // Date
+  if (previewFields.date) {
+    previewFields.date.textContent = dateStr;
+    if (previewFields.dateBox) {
+      previewFields.dateBox.style.display = dateStr ? "flex" : "none";
+    }
+  }
+
+  // Reference
+  if (previewFields.reference) {
+    previewFields.reference.textContent = values.reference || "SSE/REF/" + new Date().getFullYear();
+    if (previewFields.refBox) {
+      previewFields.refBox.style.display = values.reference ? "flex" : "none";
+    }
+  }
+
+  // Recipient
+  if (previewFields.recipient) {
+    previewFields.recipient.innerHTML = escapeHtml(values.recipient || "")
+      .replace(/\n/g, "<br>");
+    if (previewFields.recipientWrap) {
+      previewFields.recipientWrap.style.display = values.recipient ? "block" : "none";
+    }
+  }
+
+  // Subject
+  if (previewFields.subject) {
+    previewFields.subject.textContent = subjectStr;
+    if (previewFields.subjectWrap) {
+      previewFields.subjectWrap.style.display = subjectStr ? "flex" : "none";
+    }
+  }
+
+  // Content Paragraphs with clean spacing
+  if (previewFields.content) {
+    const rawContent = values.content || "";
+    if (!rawContent.trim()) {
+      previewFields.content.innerHTML = "<p class='placeholder-para'>Draft your document text on the left to see the official formatted letterhead preview...</p>";
+    } else {
+      const paragraphs = rawContent.split(/\r?\n\r?\n/);
+      previewFields.content.innerHTML = paragraphs
+        .map((p) => `<p class="paper-para">${escapeHtml(p).replace(/\r?\n/g, "<br>")}</p>`)
+        .join("");
+    }
+
+    if (rawContent.length > 2200) {
+      previewFields.content.classList.add("paper-content-multi-page");
+      if (previewStatus) {
+        previewStatus.textContent = "Showing page 1 preview. The generated PDF will automatically paginate onto page 2.";
+      }
+    } else {
+      previewFields.content.classList.remove("paper-content-multi-page");
+      if (previewStatus) {
+        previewStatus.textContent = "Preview reflects real-time edits formatted for A4 printing.";
+      }
+    }
+  }
+}
+
+if (editorForm) {
+  editorForm.addEventListener("input", () => {
+    window.clearTimeout(previewTimer);
+    previewTimer = window.setTimeout(updateLetterheadPreview, 100);
+  });
+  editorForm.addEventListener("change", updateLetterheadPreview);
+  updateLetterheadPreview();
+}

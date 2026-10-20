@@ -1,0 +1,73 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "function": "sse",
+        "region": "asia-south1"
+      },
+      {
+        "source": "/admin/**",
+        "function": "sse",
+        "region": "asia-south1"
+      },
+      {
+        "source": "/letterhead/**",
+        "function": "sse",
+        "region": "asia-south1"
+      },
+      {
+        "source": "/letterhead",
+        "function": "sse",
+        "region": "asia-south1"
+      },
+      {
+        "source": "/safety-policy",
+        "function": "sse",
+        "region": "asia-south1"
+      },
+      {
+        "source": "/safety-training",
+        "function": "sse",
+        "region": "asia-south1"
+      },
+      {
+        "source": "/safety-organization",
+        "function": "sse",
+        "region": "asia-south1"
+      },
+      {
+        "source": "/",
+        "destination": "/react/index.html"
+      },
+      {
+        "source": "**",
+        "destination": "/react/index.html"
+      }
+    ]
+  },
+  "functions": [
+    {
+      "source": ".",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "client",
+        ".firebase",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ],
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}

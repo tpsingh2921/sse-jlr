@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#071a14">
+    <meta name="robots" content="noindex, nofollow">
+    <title>⚡ Tax Invoice <%= invoice.invoice_number %> | Shree Shantinath Enterprises</title>
+    <link rel="icon" type="image/svg+xml" href="/favicons/favicon-invoices.svg?v=7">
+    <link rel="shortcut icon" href="/favicons/favicon-invoices.svg?v=7">
+    <link rel="apple-touch-icon" href="/favicons/favicon-invoices.svg?v=7">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css?v=10">
+    <script>
+      (function() {
+        var t = localStorage.getItem('sse_theme');
+        if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
+  </head>
+  <body class="invoice-view-body">
+    <!-- Non-printable top action bar -->
+    <div class="invoice-action-toolbar no-print">
+      <div class="toolbar-shell">
+        <a class="button button-outline" href="/admin/invoices">← All Invoices</a>
+        <div class="toolbar-right">
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle dark mode theme" title="Toggle gradient dark theme">
+            <span class="sun-icon" style="display:none;">☀️</span>
+            <span class="moon-icon">🌙</span>
+            <span class="theme-toggle-label">Dark</span>
+          </button>
+          <a class="button button-outline" href="/admin/invoices/<%= invoice.id %>/edit">Edit Invoice</a>
+          <button class="button button-outline" onclick="window.print()">Print Invoice 🖨️</button>
+          <a class="button button-dark" href="/admin/invoices/<%= invoice.id %>/download">Download PDF ↓</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Official Printable GST Tax Invoice Paper -->
+    <main class="invoice-print-container">
+      <article class="gst-tax-invoice-sheet" aria-label="Official Tax Invoice">
+        <!-- Top Green & Gold Ribbon -->
+        <div class="tax-inv-top-bar"></div>
+
+        <!-- Supplier & Title Header -->
+        <header class="tax-inv-header">
+          <div class="inv-brand-cluster">
+            <img class="inv-brand-logo" src="/images/brand-mark.svg" alt="" width="56" height="56">
+            <div>
+              <h1 class="inv-firm-name">SHREE SHANTINATH ENTERPRISES</h1>
+              <p class="inv-firm-tagline">GOVT. CIVIL CONTRACTS, PWD WORKS &amp; RENEWABLE CLEAN ENERGY</p>
+              <p class="inv-firm-address">Registered Office: Jalore, Rajasthan - 343001, India</p>
+              <p class="inv-firm-contact">
+                <span>Phone: +91 96363 20419</span> &bull; 
+                <span>Email: shreeshantinath.enterprises25@gmail.com</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="inv-title-block">
+            <span class="inv-title-badge">TAX INVOICE</span>
+            <small class="inv-rule-note">(Issued under Section 31 of CGST Act, 2017)</small>
+            <div class="inv-supplier-gst-card">
+              <span>GSTIN: <b>08BOKPV8974D1Z5</b></span>
+              
+              <span>STATE: <b>RAJASTHAN (CODE: 08)</b></span>
+              <span>MSME: <b>REGISTERED ENTERPRISE</b></span>
+            </div>
+          </div>
+        </header>
+
+        <!-- Divider Line -->
+        <div class="inv-gold-divider"></div>
+
+        <!-- Invoice Details & Billed To 2-Column Grid -->
+        <div class="tax-inv-meta-grid">
+          <!-- Left: Billed To / Consignee -->
+          <div class="inv-meta-col-left">
+            <div class="meta-sub-box">
+              <span class="box-tag">BILLED TO (BUYER / DEVELOPER):</span>
+              <h2 class="buyer-name"><%= invoice.client_name %></h2>
+              <% if (invoice.client_address) { %>
+                <p class="buyer-address"><%- invoice.client_address.replace(/\n/g, '<br>') %></p>
+              <% } %>
+              <div class="buyer-ids-row">
+                <span>GSTIN: <b><%= invoice.client_gstin || 'Unregistered / B2C' %></b></span>
+                
+                <span>State: <b><%= invoice.client_state || 'Rajasthan' %></b></span>
+              </div>
+            </div>
+
+            <div class="meta-sub-box consignee-box">
+              <span class="box-tag">SHIPPED TO / PROJECT SITE CONSIGNMENT:</span>
+              <p class="site-desc"><strong>📍 <%= invoice.project_site %></strong></p>
+            </div>
+          </div>
+
+          <!-- Right: Invoice Metadata Box -->
+          <div class="inv-meta-col-right">
+            <table class="inv-summary-table">
+              <tbody>
+                <tr>
+                  <th>Invoice Number:</th>
+                  <td><strong class="font-mono text-emerald"><%= invoice.invoice_number %></strong></td>
+                </tr>
+                <tr>
+                  <th>Invoice Date:</th>
+                  <td><%= new Date(invoice.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'UTC' }) %></td>
+                </tr>
+                <% if (invoice.due_date) { %>
+                  <tr>
+                    <th>Payment Due Date:</th>
+                    <td><%= new Date(invoice.due_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'UTC' }) %></td>
+                  </tr>
+                <% } %>
+                <tr>
+                  <th>Place of Supply:</th>
+                  <td><strong><%= invoice.place_of_supply || 'Rajasthan (08)' %></strong></td>
+                </tr>
+                <tr>
+                  <th>Work Order / PO Ref:</th>
+                  <td><%= invoice.work_order_no || 'PO As Agreed' %></td>
+                </tr>
+                <% if (invoice.work_order_date) { %>
+                  <tr>
+                    <th>Work Order Date:</th>
+                    <td><%= new Date(invoice.work_order_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) %></td>
+                  </tr>
+                <% } %>
+                <tr>
+                  <th>Reverse Charge (RCM):</th>
+                  <td><%= invoice.reverse_charge ? 'Yes' : 'No' %></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Itemized Supply Table -->
+        <div class="tax-inv-items-container">
+          <table class="tax-inv-table">
+            <thead>
+              <tr>
+                <th style="width: 5%">S.No</th>
+                <th style="width: 48%">Description of Civil Works &amp; Scope Deliverables</th>
+                <th style="width: 10%">HSN/SAC</th>
+                <th style="width: 9%">Unit</th>
+                <th style="width: 8%">Qty</th>
+                <th style="width: 10%">Rate (₹)</th>
+                <th style="width: 10%">Taxable Value (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% (invoice.items || []).forEach((item, index) => { %>
+                <tr>
+                  <td class="text-center font-mono"><%= index + 1 %></td>
+                  <td class="item-scope-desc">
+                    <strong><%= item.description %></strong>
+                  </td>
+                  <td class="text-center font-mono"><%= item.sac_code || '995423' %></td>
+                  <td class="text-center"><%= item.unit || 'MW' %></td>
+                  <td class="text-right font-mono"><%= Number(item.quantity).toLocaleString('en-IN') %></td>
+                  <td class="text-right font-mono"><%= Number(item.rate).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></td>
+                  <td class="text-right font-mono font-bold">
+                    <%= Number(item.amount || (item.quantity * item.rate)).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Totals & Calculations Grid -->
+        <div class="tax-inv-totals-grid">
+          <!-- Left: Bank Details & Terms -->
+          <div class="inv-bank-terms-col">
+            <div class="bank-details-box">
+              <span class="box-tag">BANK REMITTANCE DETAILS (FOR RTGS / NEFT):</span>
+              <table class="bank-details-table">
+                <tbody>
+                  <tr><th>Account Name:</th><td><strong>SHREE SHANTINATH ENTERPRISES</strong></td></tr>
+                  <tr><th>Bank Name:</th><td><%= invoice.bank_name || 'State Bank of India' %></td></tr>
+                  <tr><th>Account No:</th><td><strong class="font-mono"><%= invoice.bank_account_no || '38920194821' %></strong></td></tr>
+                  <tr><th>IFSC Code:</th><td><strong class="font-mono"><%= invoice.bank_ifsc || 'SBIN0031168' %></strong></td></tr>
+                  <tr><th>Branch:</th><td><%= invoice.bank_branch || 'Jalore Main Branch, Rajasthan' %></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="terms-conditions-box">
+              <span class="box-tag">TERMS &amp; STATUTORY DECLARATION:</span>
+              <p class="terms-text"><%- (invoice.terms_conditions || '1. Certified that the particulars given above are true and correct.\n2. Payment terms: 100% within 30 days of invoice presentation.\n3. Interest @ 18% p.a. will be charged on overdue payments.\n4. Subject to Jalore / Jodhpur jurisdiction only.').replace(/\n/g, '<br>') %></p>
+            </div>
+          </div>
+
+          <!-- Right: Tax Breakdown Column -->
+          <div class="inv-tax-breakdown-col">
+            <table class="tax-computation-table">
+              <tbody>
+                <tr>
+                  <th>Total Taxable Value:</th>
+                  <td class="font-mono">₹ <%= Number(invoice.subtotal).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></td>
+                </tr>
+
+                <% if (Number(invoice.igst_amount) > 0) { %>
+                  <tr>
+                    <th>Integrated GST (IGST @ 18%):</th>
+                    <td class="font-mono">₹ <%= Number(invoice.igst_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></td>
+                  </tr>
+                <% } else { %>
+                  <tr>
+                    <th>Central GST (CGST @ 9%):</th>
+                    <td class="font-mono">₹ <%= Number(invoice.cgst_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></td>
+                  </tr>
+                  <tr>
+                    <th>State GST (SGST @ 9%):</th>
+                    <td class="font-mono">₹ <%= Number(invoice.sgst_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></td>
+                  </tr>
+                <% } %>
+
+                <tr class="grand-total-row">
+                  <th>TOTAL INVOICE AMOUNT:</th>
+                  <td class="font-mono grand-total-val">₹ <%= Number(invoice.total_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="amount-in-words-card">
+              <small>AMOUNT IN WORDS (INR):</small>
+              <strong class="words-text"><%= invoice.amount_in_words || 'INR Zero Only' %></strong>
+            </div>
+
+            <!-- Signatory Block -->
+            <div class="inv-signatory-block">
+              <p class="sig-firm">For <strong>SHREE SHANTINATH ENTERPRISES</strong></p>
+              <div class="sig-seal-wrap">
+                <img class="sig-seal-img" src="/images/company-seal.png" alt="Company Seal">
+              </div>
+              <p class="sig-name"><strong>Harsh Vardhan</strong></p>
+              <p class="sig-title">Proprietor / Authorized Signatory</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Notice -->
+        <footer class="tax-inv-footer">
+          <span>This is an official Tax Invoice generated by Shree Shantinath Enterprises &bull; Quality, Safety, Govt. Civil &amp; Clean Energy Infrastructure</span>
+        </footer>
+      </article>
+    </main>
+    <script src="/js/main.js?v=3" defer></script>
+  </body>
+</html>

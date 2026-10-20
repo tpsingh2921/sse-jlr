@@ -5,24 +5,26 @@
   "description": "Website for Shree Shantinath Enterprises",
   "main": "server.js",
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && node -e \"const fs = require('fs'); fs.cpSync('public/favicons', 'public/react/favicons', {recursive: true}); fs.copyFileSync('public/favicon.svg', 'public/react/favicon.svg');\"",
     "prestart": "npm run build",
     "start": "node server.js",
     "dev": "node -e \"process.env.NODE_ENV='development'; require('./server.js')\""
   },
   "engines": {
-    "node": ">=18"
+    "node": "20"
   },
   "dependencies": {
-    "connect-pg-simple": "^10.0.0",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
     "express-session": "^1.19.0",
+    "firebase": "^13.0.0",
+    "firebase-admin": "^14.5.0",
+    "firebase-functions": "^7.4.0",
     "helmet": "^8.0.0",
+    "lucide-react": "^1.59.0",
     "pdf-lib": "^1.17.1",
-    "pg": "^8.13.1",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },

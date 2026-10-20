@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="enqBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="60%" stop-color="#064e3b"/>
+      <stop offset="100%" stop-color="#022c22"/>
+    </linearGradient>
+    <linearGradient id="enqGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#f5cb74"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="enqEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+  </defs>
+  <!-- Main Speech / Consultation Bubble -->
+  <path d="M10 14 C10 8 16 6 32 6 C48 6 54 8 54 14 L54 36 C54 42 48 44 32 44 L22 44 L14 52 L14 44 C10 44 10 42 10 36 Z" fill="url(#enqBg)" stroke="url(#enqEmerald)" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Inquiry Signal Dots (Typing / Communication) -->
+  <circle cx="24" cy="25" r="3.5" fill="url(#enqGold)"/>
+  <circle cx="32" cy="25" r="3.5" fill="#ffffff"/>
+  <circle cx="40" cy="25" r="3.5" fill="url(#enqEmerald)"/>
+  <!-- New Alert Notification Badge (Top Right) -->
+  <circle cx="49" cy="11" r="5.5" fill="#ef4444" stroke="#0f172a" stroke-width="1.5"/>
+  <circle cx="49" cy="11" r="2" fill="#ffffff"/>
+</svg>

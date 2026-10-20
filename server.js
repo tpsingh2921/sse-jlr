@@ -7,18 +7,15 @@ const express = require("express");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const session = require("express-session");
-const PgSession = require("connect-pg-simple")(session);
 const { PDFDocument, StandardFonts, rgb } = require("pdf-lib");
-const { Pool, types } = require("pg");
-types.setTypeParser(1082, (value) => value);
+const fdb = require("./firestore-db");
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
 const contactEmail =
   process.env.CONTACT_EMAIL || "shreeshantinath.enterprises25@gmail.com";
-const letterheadPassword = process.env.LETTERHEAD_ADMIN_PASSWORD || "";
 const sessionSecret = process.env.SESSION_SECRET || "";
-let databaseReady = false;
+let databaseReady = true;
 let viteServer;
 const safetyDocuments = {
   policy: {
@@ -368,17 +365,6 @@ const safetyDocuments = {
     ],
   },
 };
-const pool = new Pool(
-  process.env.DATABASE_URL
-    ? { connectionString: process.env.DATABASE_URL }
-    : {
-        host: process.env.PGHOST || "localhost",
-        port: Number(process.env.PGPORT) || 5432,
-        user: process.env.PGUSER || "postgres",
-        password: process.env.PGPASSWORD,
-        database: process.env.PGDATABASE || "Web Dev",
-      },
-);
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -389,6 +375,7 @@ app.use(
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
         "script-src": ["'self'", "'unsafe-inline'"],
+        "script-src-attr": ["'unsafe-inline'"],
         "connect-src": [
           "'self'",
           ...(process.env.NODE_ENV === "development"
@@ -411,40 +398,37 @@ app.use((request, response, next) => {
 });
 app.use(express.urlencoded({ extended: false, limit: "32kb" }));
 app.use(express.json({ limit: "32kb" }));
+const adminSessionMiddleware = session({
+  name: "sse_admin_session",
+  secret: sessionSecret || crypto.randomBytes(32).toString("hex"),
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 8 * 60 * 60 * 1000,
+    path: "/",
+  },
+});
+
 app.use(
-  "/letterhead",
+  ["/letterhead", "/admin"],
   (_request, response, next) => {
     response.set("X-Robots-Tag", "noindex, nofollow");
     if (!databaseReady) {
       return response
         .status(503)
-        .send("The private document library is unavailable until PostgreSQL is ready.");
+        .send("The private admin area is unavailable until Firebase Firestore is ready.");
     }
     next();
   },
-  session({
-    name: "sse_letterhead_session",
-    store: new PgSession({
-      pool,
-      tableName: "letterhead_sessions",
-      createTableIfMissing: false,
-    }),
-    secret: sessionSecret || crypto.randomBytes(32).toString("hex"),
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 8 * 60 * 60 * 1000,
-      path: "/letterhead",
-    },
-  }),
+  adminSessionMiddleware,
 );
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 5,
+  limit: 30,
   standardHeaders: "draft-7",
   legacyHeaders: false,
   message: "Too many sign-in attempts. Please try again in 15 minutes.",
@@ -487,7 +471,7 @@ function requireAdmin(request, response, next) {
   }
 
   if (request.accepts("html")) {
-    return response.redirect("/letterhead/login");
+    return response.redirect("/admin/login");
   }
   return response.status(401).json({ error: "Administrator sign-in required." });
 }
@@ -605,287 +589,270 @@ function printablePdfText(value) {
     .replace(/[^\x20-\x7e\xa0-\xff]/g, "?");
 }
 
-async function createLetterheadPdf(document) {
-  const pdf = await PDFDocument.create();
-  const font = await pdf.embedFont(StandardFonts.Helvetica);
-  const boldFont = await pdf.embedFont(StandardFonts.HelveticaBold);
-  const markFont = await pdf.embedFont(StandardFonts.TimesRomanBold);
-  const sealImage = await pdf.embedPng(
-    await fs.readFile(path.join(__dirname, "public", "images", "company-seal.png")),
-  );
-  const width = 595.28;
-  const height = 841.89;
-  const margin = 58;
-  const bodyWidth = width - margin * 2;
-  const bodyTop = 656;
-  const footerTop = 126;
-  const lineHeight = 17.5;
-  const fontSize = 10.5;
-  const ink = rgb(0.11, 0.19, 0.16);
-  const green = rgb(0.09, 0.23, 0.19);
-  const muted = rgb(0.39, 0.45, 0.41);
-  const gold = rgb(0.84, 0.66, 0.25);
-  const paper = rgb(0.98, 0.98, 0.95);
-  let page;
-  let y;
+const { createLetterheadPdf } = require("./letterhead-pdf");
+const { createInvoicePdf, numberToWordsINR } = require("./invoice-pdf");
 
-  const drawBrandMark = (target, x, centerY) => {
-    target.drawCircle({
-      x: x + 24,
-      y: centerY,
-      size: 16.5,
-      color: green,
-      borderColor: gold,
-      borderWidth: 1.6,
-    });
-    target.drawCircle({
-      x: x + 24,
-      y: centerY,
-      size: 12.8,
-      borderColor: rgb(0.89, 0.77, 0.44),
-      borderWidth: 0.7,
-    });
-    target.drawText("S", {
-      x: x + 24 - markFont.widthOfTextAtSize("S", 19) / 2,
-      y: centerY - 6.5,
-      size: 19,
-      font: markFont,
-      color: paper,
-    });
-    for (let ray = 0; ray < 8; ray += 1) {
-      const angle = (Math.PI * 2 * ray) / 8;
-      target.drawLine({
-        start: {
-          x: x + 24 + Math.cos(angle) * 19,
-          y: centerY + Math.sin(angle) * 19,
-        },
-        end: {
-          x: x + 24 + Math.cos(angle) * 22,
-          y: centerY + Math.sin(angle) * 22,
-        },
-        thickness: 1.4,
-        color: gold,
-      });
-    }
-  };
-
-  const addPage = () => {
-    page = pdf.addPage([width, height]);
-    page.drawRectangle({
-      x: 0,
-      y: 0,
-      width,
-      height,
-      color: paper,
-    });
-    page.drawRectangle({
-      x: 0,
-      y: height - 127,
-      width,
-      height: 127,
-      color: green,
-    });
-    page.drawRectangle({
-      x: 0,
-      y: height - 132,
-      width,
-      height: 5,
-      color: gold,
-    });
-    drawBrandMark(page, margin, height - 59);
-    page.drawText("SHREE SHANTINATH", {
-      x: margin + 57,
-      y: height - 50,
-      size: 16.5,
-      font: boldFont,
-      color: paper,
-      characterSpacing: 1.05,
-    });
-    page.drawText("ENTERPRISES", {
-      x: margin + 58,
-      y: height - 70,
-      size: 10,
-      font: boldFont,
-      color: gold,
-      characterSpacing: 3.3,
-    });
-    page.drawText("CIVIL WORKS  ·  RENEWABLE ENERGY", {
-      x: margin + 58,
-      y: height - 91,
-      size: 7,
-      font,
-      color: rgb(0.83, 0.88, 0.82),
-      characterSpacing: 1,
-    });
-    const gst = "GSTIN  08BOKPV8974D1Z5";
-    page.drawText(gst, {
-      x: width - margin - boldFont.widthOfTextAtSize(gst, 7),
-      y: height - 50,
-      size: 7,
-      font: boldFont,
-      color: gold,
-    });
-
-    page.drawRectangle({
-      x: 0,
-      y: 0,
-      width,
-      height: 99,
-      color: green,
-    });
-    page.drawRectangle({
-      x: 0,
-      y: 99,
-      width,
-      height: 3,
-      color: gold,
-    });
-    page.drawText("LET’S BUILD A GREENER FUTURE.", {
-      x: margin,
-      y: 69,
-      size: 8,
-      font: boldFont,
-      color: gold,
-      characterSpacing: 0.8,
-    });
-    page.drawText("+91 96363 20419   ·   +91 78771 27423", {
-      x: margin,
-      y: 48,
-      size: 8,
-      font: boldFont,
-      color: paper,
-    });
-    page.drawText("shreeshantinath.enterprises25@gmail.com", {
-      x: margin,
-      y: 32,
-      size: 8,
-      font,
-      color: rgb(0.87, 0.9, 0.85),
-    });
-    page.drawText("JALORE, RAJASTHAN  ·  INDIA", {
-      x: margin,
-      y: 15,
-      size: 6.5,
-      font,
-      color: rgb(0.72, 0.8, 0.73),
-      characterSpacing: 1.05,
-    });
-    y = bodyTop;
-  };
-  const ensureSpace = async () => {
-    if (y < footerTop) {
-      await addPage();
-    }
-  };
-  const drawWrapped = async (text, selectedFont = font, size = fontSize) => {
-    const lines = wrapPdfText(text, selectedFont, size, bodyWidth);
-    for (const line of lines) {
-      await ensureSpace();
-      if (line) {
-        page.drawText(line, {
-          x: margin,
-          y,
-          size,
-          font: selectedFont,
-          color: ink,
-        });
-      }
-      y -= lineHeight;
-    }
-  };
-
-  addPage();
-  if (document.title) {
-    page.drawRectangle({
-      x: margin,
-      y: y - 9,
-      width: 3,
-      height: 26,
-      color: gold,
-    });
-  }
-  if (document.date) {
-    page.drawText(
-      new Date(`${document.date}T00:00:00`).toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-        timeZone: "UTC",
-      }),
-      { x: margin, y, size: 9, font, color: muted },
-    );
-    y -= lineHeight * 2;
-  }
-  if (document.recipient) {
-    await drawWrapped(document.recipient);
-    y -= lineHeight;
-  }
-  if (document.reference) {
-    await drawWrapped(`Reference: ${document.reference}`, boldFont, fontSize);
-    y -= lineHeight;
-  }
-  if (document.subject) {
-    ensureSpace();
-    page.drawText("SUBJECT", {
-      x: margin,
-      y,
-      size: 7,
-      font: boldFont,
-      color: muted,
-      characterSpacing: 1,
-    });
-    y -= 14;
-    await drawWrapped(document.subject, boldFont, 11);
-    y -= lineHeight;
-  } else if (document.title) {
-    ensureSpace();
-    page.drawText("SUBJECT", {
-      x: margin,
-      y,
-      size: 7,
-      font: boldFont,
-      color: muted,
-      characterSpacing: 1,
-    });
-    y -= 14;
-    await drawWrapped(document.title, boldFont, 11);
-    y -= lineHeight;
-  }
-  page.drawLine({
-    start: { x: margin, y: y + 3 },
-    end: { x: width - margin, y: y + 3 },
-    thickness: 0.7,
-    color: rgb(0.86, 0.87, 0.82),
-  });
-  y -= 14;
-  await drawWrapped(document.content);
-  const sealWidth = 104;
-  const sealHeight = sealWidth * (sealImage.height / sealImage.width);
-  const sealBottom = footerTop + 8;
-  if (y < sealBottom + sealHeight + lineHeight) {
-    await addPage();
-  }
-  page.drawImage(sealImage, {
-    x: width - margin - sealWidth,
-    y: sealBottom,
-    width: sealWidth,
-    height: sealHeight,
-    opacity: 0.86,
-  });
-
-  return Buffer.from(await pdf.save());
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hash = crypto.scryptSync(password, salt, 64).toString("hex");
+  return `${salt}:${hash}`;
 }
 
-function compareAdminPassword(value) {
-  const configuredHash = crypto
-    .createHash("sha256")
-    .update(letterheadPassword)
-    .digest();
-  const suppliedHash = crypto
-    .createHash("sha256")
-    .update(value)
-    .digest();
-  return crypto.timingSafeEqual(suppliedHash, configuredHash);
+function verifyPassword(password, stored) {
+  if (!stored) return false;
+  const [salt, key] = stored.split(":");
+  if (!salt || !key) return false;
+  const hash = crypto.scryptSync(password, salt, 64).toString("hex");
+  return crypto.timingSafeEqual(Buffer.from(hash, "hex"), Buffer.from(key, "hex"));
+}
+
+function checkAdminPassword(password, stored) {
+  if (!password || !stored) return false;
+  if (stored.includes(":")) {
+    try {
+      if (verifyPassword(password, stored)) return true;
+    } catch (_e) {}
+  }
+  if (password === stored) return true;
+  try {
+    const sha = crypto.createHash("sha256").update(password).digest("hex");
+    if (sha === stored) return true;
+  } catch (_e) {}
+  return false;
+}
+
+async function getAdminCount() {
+  return await fdb.getAdminCount();
+}
+
+async function sendAdminOtpEmail({ to, otp, type = "login", name = "Administrator" }) {
+  const isReg = type === "registration";
+  const isReset = type === "reset";
+  const subject = isReg
+    ? `Shree Shantinath Enterprises — First-Time Admin Verification: ${otp}`
+    : isReset
+    ? `Shree Shantinath Enterprises — Password Reset OTP: ${otp}`
+    : `Shree Shantinath Enterprises — Admin Login OTP: ${otp}`;
+  const text = `Hello ${name},\n\nYour security verification code is:\n\n${otp}\n\nThis code expires in 10 minutes.\nIf you did not request this, please call +91 96363 20419.`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; background: #f7f9f6; padding: 28px 16px; color: #071a14;">
+      <div style="max-width: 520px; margin: 0 auto; background: #ffffff; border: 1px solid #dce4de; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+        <div style="background: #0d2820; padding: 20px 24px; border-bottom: 3px solid #d4af37;">
+          <h2 style="margin: 0; color: #ffffff; font-size: 16px; letter-spacing: 1px;">SHREE SHANTINATH ENTERPRISES</h2>
+          <p style="margin: 4px 0 0; color: #f5cb74; font-size: 11px; letter-spacing: 1px;">ADMINISTRATION TWO-FACTOR AUTHENTICATION</p>
+        </div>
+        <div style="padding: 24px;">
+          <p style="margin: 0 0 12px; font-size: 14px;">Hello <strong>${escapeHtml(name)}</strong>,</p>
+          <p style="margin: 0 0 20px; font-size: 13px; color: #475569; line-height: 1.6;">
+            ${isReg ? "Use the one-time code below to verify your email and complete your first-time admin registration:" : isReset ? "Use the one-time security code (OTP) below to reset your administrator password:" : "Use the one-time security code (OTP) below to authenticate your admin sign-in:"}
+          </p>
+          <div style="background: #f0fdf4; border: 2px dashed #10b981; border-radius: 8px; padding: 18px; text-align: center; margin-bottom: 22px;">
+            <span style="font-family: monospace; font-size: 32px; font-weight: bold; letter-spacing: 10px; color: #0d2820;">${otp}</span>
+            <p style="margin: 8px 0 0; font-size: 11px; color: #059669;">Valid for 10 minutes</p>
+          </div>
+          <p style="margin: 0; font-size: 11px; color: #64748b; line-height: 1.5;">
+            Sent to: ${escapeHtml(to)}. If you did not initiate this, please call +91 96363 20419.
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  console.log("\n========================================================");
+  console.log(`🔐 [ADMIN ${type.toUpperCase()} OTP]: ${otp} for ${to}`);
+  console.log("========================================================\n");
+
+  if (process.env.RESEND_API_KEY && process.env.EMAIL_FROM) {
+    try {
+      await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: process.env.EMAIL_FROM,
+          to: [to],
+          subject,
+          text,
+          html,
+        }),
+      });
+    } catch (e) {
+      console.warn("Resend email dispatch notice:", e.message);
+    }
+  }
+}
+
+
+async function sendInvoiceEmailToAdmin(invoice, recipientEmail) {
+  if (!invoice) return;
+  try {
+    const to = recipientEmail || contactEmail || "shreeshantinath.enterprises25@gmail.com";
+    const pdfBytes = await createInvoicePdf(invoice);
+    const pdfBuffer = Buffer.isBuffer(pdfBytes) ? pdfBytes : Buffer.from(pdfBytes);
+    const safeInvNo = invoice.invoice_number || `INV-${invoice.id}`;
+    const filename = `Tax-Invoice-${String(safeInvNo).replace(/[^a-zA-Z0-9_-]/g, "_")}.pdf`;
+
+    const subject = `Shree Shantinath Enterprises — Tax Invoice Saved: ${safeInvNo} (${invoice.client_name || "Client"})`;
+    const text = `Hello Administrator,\n\nA GST Tax Invoice has been generated and saved.\n\nInvoice Number: ${safeInvNo}\nDate: ${invoice.invoice_date}\nClient: ${invoice.client_name}\nTotal Amount: INR ${Number(invoice.total_amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}\n\nPlease find the official PDF attached.\n\nShree Shantinath Enterprises`;
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; background: #f7f9f6; padding: 28px 16px; color: #071a14;">
+        <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border: 1px solid #dce4de; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+          <div style="background: #0d2820; padding: 20px 24px; border-bottom: 3px solid #d4af37;">
+            <h2 style="margin: 0; color: #ffffff; font-size: 16px; letter-spacing: 1px;">SHREE SHANTINATH ENTERPRISES</h2>
+            <p style="margin: 4px 0 0; color: #f5cb74; font-size: 11px; letter-spacing: 1px;">OFFICIAL GST TAX INVOICE DISPATCH</p>
+          </div>
+          <div style="padding: 24px;">
+            <p style="margin: 0 0 14px; font-size: 14px;">Hello <strong>Administrator</strong>,</p>
+            <p style="margin: 0 0 18px; font-size: 13px; color: #475569; line-height: 1.6;">
+              A GST Tax Invoice has been saved in the administrative portal. The official compliance PDF is attached to this email.
+            </p>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px;">
+              <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px 0; color: #64748b;">Invoice No:</td><td style="padding: 8px 0; font-weight: bold; text-align: right; color: #0d2820;">${escapeHtml(safeInvNo)}</td></tr>
+              <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px 0; color: #64748b;">Invoice Date:</td><td style="padding: 8px 0; text-align: right;">${escapeHtml(invoice.invoice_date || "")}</td></tr>
+              <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px 0; color: #64748b;">Client Name:</td><td style="padding: 8px 0; font-weight: bold; text-align: right;">${escapeHtml(invoice.client_name || "")}</td></tr>
+              <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px 0; color: #64748b;">Client GSTIN:</td><td style="padding: 8px 0; text-align: right;">${escapeHtml(invoice.client_gstin || "N/A")}</td></tr>
+              <tr style="border-bottom: 2px solid #0d2820;"><td style="padding: 10px 0; font-size: 14px; font-weight: bold; color: #0d2820;">Total Invoice Amount:</td><td style="padding: 10px 0; font-size: 16px; font-weight: bold; text-align: right; color: #059669;">INR ${Number(invoice.total_amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td></tr>
+            </table>
+            <p style="margin: 0; font-size: 11px; color: #64748b;">
+              Official record generated via Shree Shantinath Enterprises Portal.
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    console.log(`\n📧 [INVOICE EMAIL]: Sending PDF for ${safeInvNo} to ${to}`);
+
+    if (process.env.RESEND_API_KEY && process.env.EMAIL_FROM) {
+      await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: process.env.EMAIL_FROM,
+          to: [to],
+          subject,
+          text,
+          html,
+          attachments: [
+            {
+              filename,
+              content: pdfBuffer.toString("base64"),
+            },
+          ],
+        }),
+      });
+      console.log(`✅ [INVOICE EMAIL DISPATCHED] via Resend to ${to}`);
+    } else {
+      console.log(`ℹ️ [INVOICE EMAIL]: PDF generated (${filename}, ${pdfBuffer.length} bytes). Email dispatch simulated.`);
+    }
+  } catch (err) {
+    console.warn("Could not email invoice PDF to admin:", err.message);
+  }
+}
+
+function calculateInvoiceFields(body) {
+  const client_name = clean(body.client_name);
+  const client_gstin = clean(body.client_gstin).toUpperCase();
+  const client_pan = clean(body.client_pan).toUpperCase();
+  const client_address = typeof body.client_address === "string" ? body.client_address.trim() : "";
+  const client_state = clean(body.client_state) || "Rajasthan";
+  const place_of_supply = clean(body.place_of_supply) || "Rajasthan (08)";
+  const project_site = typeof body.project_site === "string" ? body.project_site.trim() : "";
+  const invoice_number = clean(body.invoice_number);
+  const invoice_date = clean(body.invoice_date) || new Date().toISOString().slice(0, 10);
+  const due_date = clean(body.due_date) || null;
+  const work_order_no = clean(body.work_order_no);
+  const work_order_date = clean(body.work_order_date) || null;
+  const reverse_charge = body.reverse_charge === "true" || body.reverse_charge === true;
+  const status = clean(body.status) || "Pending";
+  const tax_type = clean(body.tax_type) || "intra";
+
+  const descArr = Array.isArray(body["item_description[]"]) ? body["item_description[]"] : [body["item_description[]"]].filter(Boolean);
+  const sacArr = Array.isArray(body["item_sac[]"]) ? body["item_sac[]"] : [body["item_sac[]"]].filter(Boolean);
+  const unitArr = Array.isArray(body["item_unit[]"]) ? body["item_unit[]"] : [body["item_unit[]"]].filter(Boolean);
+  const qtyArr = Array.isArray(body["item_quantity[]"]) ? body["item_quantity[]"] : [body["item_quantity[]"]].filter(Boolean);
+  const rateArr = Array.isArray(body["item_rate[]"]) ? body["item_rate[]"] : [body["item_rate[]"]].filter(Boolean);
+
+  const items = [];
+  let subtotal = 0;
+
+  for (let i = 0; i < descArr.length; i++) {
+    const desc = clean(descArr[i]);
+    if (!desc) continue;
+    const sac = clean(sacArr[i]) || "995434";
+    const unit = clean(unitArr[i]) || "MW";
+    const qty = Math.max(0, Number(qtyArr[i]) || 0);
+    const rate = Math.max(0, Number(rateArr[i]) || 0);
+    const amount = Math.round(qty * rate * 100) / 100;
+    subtotal += amount;
+
+    items.push({
+      description: desc,
+      sac_code: sac,
+      unit,
+      quantity: qty,
+      rate,
+      amount,
+    });
+  }
+
+  subtotal = Math.round(subtotal * 100) / 100;
+  let cgst_rate = 0, cgst_amount = 0;
+  let sgst_rate = 0, sgst_amount = 0;
+  let igst_rate = 0, igst_amount = 0;
+
+  if (tax_type === "inter") {
+    igst_rate = 18;
+    igst_amount = Math.round(subtotal * 0.18 * 100) / 100;
+  } else {
+    cgst_rate = 9;
+    cgst_amount = Math.round(subtotal * 0.09 * 100) / 100;
+    sgst_rate = 9;
+    sgst_amount = Math.round(subtotal * 0.09 * 100) / 100;
+  }
+
+  const total_amount = Math.round((subtotal + cgst_amount + sgst_amount + igst_amount) * 100) / 100;
+  const amount_in_words = numberToWordsINR(total_amount);
+
+  return {
+    invoice_number,
+    invoice_date,
+    due_date,
+    work_order_no,
+    work_order_date,
+    client_name,
+    client_gstin,
+    client_pan,
+    client_address,
+    client_state,
+    place_of_supply,
+    project_site,
+    reverse_charge,
+    items,
+    subtotal,
+    cgst_rate,
+    cgst_amount,
+    sgst_rate,
+    sgst_amount,
+    igst_rate,
+    igst_amount,
+    total_amount,
+    amount_in_words,
+    bank_name: clean(body.bank_name) || "State Bank of India",
+    bank_account_no: clean(body.bank_account_no) || "38920194821",
+    bank_ifsc: clean(body.bank_ifsc) || "SBIN0031168",
+    bank_branch: clean(body.bank_branch) || "Jalore Main Branch, Rajasthan",
+    terms_conditions: typeof body.terms_conditions === "string" ? body.terms_conditions.trim() : "",
+    notes: typeof body.notes === "string" ? body.notes.trim() : "",
+    status,
+  };
 }
 
 function escapeHtml(value) {
@@ -1065,90 +1032,428 @@ app.get("/letterhead/template", requireAdmin, async (_request, response) => {
   }
 });
 
-app.get("/letterhead/login", (request, response) => {
+app.get("/admin", (request, response) => {
+  if (request.session?.isLetterheadAdmin) {
+    return response.redirect("/letterhead");
+  }
+  return response.redirect("/admin/login");
+});
+
+app.get(["/admin/login", "/letterhead/login"], (request, response) => {
   if (request.session?.isLetterheadAdmin) {
     return response.redirect("/letterhead");
   }
   response.set("Cache-Control", "no-store");
   const csrfToken = issueCsrfToken(request);
-  response.render("letterhead-login", {
+  response.render("admin-login", {
     csrfToken,
     error: "",
-    configured:
-      letterheadPassword.length >= 16 && sessionSecret.length >= 32,
+    message: request.query.message || "",
+    mode: "login",
+    pageTitle: "Admin Sign In",
   });
 });
 
 app.post(
-  "/letterhead/login",
+  ["/admin/login", "/letterhead/login"],
   loginLimiter,
   requireCsrf,
-  (request, response, next) => {
-    if (letterheadPassword.length < 16 || sessionSecret.length < 32) {
-      return response.status(503).render("letterhead-login", {
+  async (request, response) => {
+    const email = clean(request.body.email).toLowerCase();
+    const password = clean(request.body.password);
+
+    if (!email || !password) {
+      return response.status(400).render("admin-login", {
         csrfToken: issueCsrfToken(request),
-        error:
-          "Admin access is not configured. Set LETTERHEAD_ADMIN_PASSWORD (at least 16 characters) and SESSION_SECRET (at least 32 characters) in the local .env file.",
-        configured: false,
+        error: "Please enter your administrator email and password.",
+        mode: "login",
+        values: { email },
+        pageTitle: "Admin Sign In",
       });
     }
 
-    if (!compareAdminPassword(clean(request.body.password))) {
-      return response.status(401).render("letterhead-login", {
-        csrfToken: issueCsrfToken(request),
-        error: "Incorrect admin password. Please try again.",
-        configured: true,
-      });
+    let admin = null;
+    try {
+      admin = await fdb.getAdminByEmail(email);
+    } catch (e) {
+      console.warn("Notice: Checking admin in Firestore:", e.message);
     }
 
-    request.session.regenerate((error) => {
-      if (error) {
-        return next(error);
+    let validCredentials = false;
+    let adminName = "Harsh Vardhan";
+    let adminMobile = "+91 96363 20419";
+    let adminId = "admin-1";
+
+    if (admin && admin.password_hash) {
+      if (checkAdminPassword(password, admin.password_hash)) {
+        validCredentials = true;
+        adminName = admin.name || adminName;
+        adminMobile = admin.mobile || adminMobile;
+        adminId = admin.id;
       }
+    }
+
+    if (!validCredentials) {
+      return response.status(401).render("admin-login", {
+        csrfToken: issueCsrfToken(request),
+        error: "Invalid email address or password. Please try again.",
+        mode: "login",
+        values: { email },
+        pageTitle: "Admin Sign In",
+      });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    request.session.pendingLogin = {
+      id: adminId,
+      name: adminName,
+      email: email,
+      mobile: adminMobile,
+      otp,
+      expiresAt: Date.now() + 10 * 60 * 1000,
+    };
+
+    try {
+      await sendAdminOtpEmail({ to: email, otp, type: "login", name: adminName });
+    } catch (err) {
+      console.warn("Could not dispatch login OTP:", err.message);
+    }
+
+    return response.redirect("/admin/verify-otp");
+  },
+);
+
+app.get(["/admin/verify-otp", "/letterhead/verify-otp"], (request, response) => {
+  if (!request.session?.pendingLogin) {
+    return response.redirect("/admin/login");
+  }
+  response.set("Cache-Control", "no-store");
+  return response.render("admin-login", {
+    csrfToken: issueCsrfToken(request),
+    error: "",
+    message: request.query.message || "",
+    mode: "verify-otp",
+    pendingEmail: request.session.pendingLogin.email,
+    pageTitle: "Two-Factor Verification",
+  });
+});
+
+app.post(
+  ["/admin/verify-otp", "/letterhead/verify-otp"],
+  requireCsrf,
+  (request, response, next) => {
+    const pending = request.session?.pendingLogin;
+    if (!pending || Date.now() > pending.expiresAt) {
+      delete request.session.pendingLogin;
+      return response.status(400).render("admin-login", {
+        csrfToken: issueCsrfToken(request),
+        error: "Security OTP expired. Please sign in again.",
+        mode: "login",
+        pageTitle: "Admin Sign In",
+      });
+    }
+
+    const enteredOtp = clean(request.body.otp);
+    if (!enteredOtp || enteredOtp !== pending.otp) {
+      return response.status(400).render("admin-login", {
+        csrfToken: issueCsrfToken(request),
+        error: "Incorrect 6-digit OTP code. Please check your email or server log and try again.",
+        mode: "verify-otp",
+        pendingEmail: pending.email,
+        pageTitle: "Two-Factor Verification",
+      });
+    }
+
+    const adminUser = {
+      id: pending.id,
+      name: pending.name,
+      email: pending.email,
+      mobile: pending.mobile,
+    };
+
+    delete request.session.pendingLogin;
+    request.session.regenerate((err) => {
+      if (err) return next(err);
       request.session.isLetterheadAdmin = true;
-      const csrfToken = issueCsrfToken(request);
-      request.session.save((saveError) => {
-        if (saveError) {
-          return next(saveError);
-        }
-        response.redirect("/letterhead");
+      request.session.adminUser = adminUser;
+      request.session.save((saveErr) => {
+        if (saveErr) return next(saveErr);
+        return response.redirect("/letterhead");
       });
     });
+  },
+);
+
+app.post(["/admin/resend-otp", "/letterhead/resend-otp"], requireCsrf, async (request, response) => {
+  const pending = request.session?.pendingLogin;
+  if (!pending) {
+    return response.redirect("/admin/login");
+  }
+
+  const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+  pending.otp = newOtp;
+  pending.expiresAt = Date.now() + 10 * 60 * 1000;
+
+  try {
+    await sendAdminOtpEmail({
+      to: pending.email,
+      otp: newOtp,
+      type: "login",
+      name: pending.name,
+    });
+  } catch (err) {
+    console.warn("Could not resend OTP:", err.message);
+  }
+
+  return response.redirect("/admin/verify-otp?message=A+new+security+OTP+has+been+sent");
+});
+
+// ----------------------------------------------------
+// FORGOT & RESET PASSWORD ROUTES
+// ----------------------------------------------------
+app.get(["/admin/forgot-password", "/letterhead/forgot-password"], (request, response) => {
+  if (request.session?.isLetterheadAdmin) {
+    return response.redirect("/letterhead");
+  }
+  response.set("Cache-Control", "no-store");
+  return response.render("admin-login", {
+    csrfToken: issueCsrfToken(request),
+    error: "",
+    message: request.query.message || "",
+    mode: "forgot-password",
+    pageTitle: "Forgot Password",
+    values: {},
+  });
+});
+
+app.post(
+  ["/admin/forgot-password", "/letterhead/forgot-password"],
+  loginLimiter,
+  requireCsrf,
+  async (request, response) => {
+    const email = clean(request.body.email).toLowerCase();
+    if (!email) {
+      return response.status(400).render("admin-login", {
+        csrfToken: issueCsrfToken(request),
+        error: "Please enter your administrator email ID.",
+        mode: "forgot-password",
+        pageTitle: "Forgot Password",
+        values: { email },
+      });
+    }
+
+    let admin = null;
+    try {
+      admin = await fdb.getAdminByEmail(email);
+    } catch (e) {
+      console.warn("Notice checking admin in database:", e.message);
+    }
+
+    const isMasterEmail =
+      email === contactEmail.toLowerCase() ||
+      email === "shreeshantinath.enterprises25@gmail.com";
+
+    if (!admin && !isMasterEmail) {
+      return response.status(400).render("admin-login", {
+        csrfToken: issueCsrfToken(request),
+        error: "No administrator found with this email ID. Please check the address or contact support.",
+        mode: "forgot-password",
+        pageTitle: "Forgot Password",
+        values: { email },
+      });
+    }
+
+    const adminName = admin?.name || "Harsh Vardhan";
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    request.session.pendingReset = {
+      email,
+      name: adminName,
+      otp,
+      expiresAt: Date.now() + 10 * 60 * 1000,
+    };
+
+    try {
+      await sendAdminOtpEmail({
+        to: email,
+        otp,
+        type: "reset",
+        name: adminName,
+      });
+    } catch (err) {
+      console.warn("Could not dispatch reset OTP:", err.message);
+    }
+
+    return response.redirect("/admin/reset-password");
+  }
+);
+
+app.get(["/admin/reset-password", "/letterhead/reset-password"], (request, response) => {
+  if (!request.session?.pendingReset) {
+    return response.redirect("/admin/forgot-password");
+  }
+  response.set("Cache-Control", "no-store");
+  return response.render("admin-login", {
+    csrfToken: issueCsrfToken(request),
+    error: "",
+    message: request.query.message || "",
+    mode: "reset-password",
+    pendingEmail: request.session.pendingReset.email,
+    pageTitle: "Reset Password",
+  });
+});
+
+app.post(
+  ["/admin/reset-password", "/letterhead/reset-password"],
+  requireCsrf,
+  async (request, response) => {
+    const pending = request.session?.pendingReset;
+    if (!pending || Date.now() > pending.expiresAt) {
+      delete request.session.pendingReset;
+      return response.status(400).render("admin-login", {
+        csrfToken: issueCsrfToken(request),
+        error: "Reset verification code expired. Please request a new code.",
+        mode: "forgot-password",
+        pageTitle: "Forgot Password",
+      });
+    }
+
+    const enteredOtp = clean(request.body.otp);
+    const newPassword = clean(request.body.newPassword);
+    const confirmPassword = clean(request.body.confirmPassword);
+
+    if (!enteredOtp || enteredOtp !== pending.otp) {
+      return response.status(400).render("admin-login", {
+        csrfToken: issueCsrfToken(request),
+        error: "Incorrect 6-digit verification code. Please check your email or server log and try again.",
+        mode: "reset-password",
+        pendingEmail: pending.email,
+        pageTitle: "Reset Password",
+      });
+    }
+
+    if (!newPassword || newPassword.length < 8) {
+      return response.status(400).render("admin-login", {
+        csrfToken: issueCsrfToken(request),
+        error: "New password must be at least 8 characters long.",
+        mode: "reset-password",
+        pendingEmail: pending.email,
+        pageTitle: "Reset Password",
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return response.status(400).render("admin-login", {
+        csrfToken: issueCsrfToken(request),
+        error: "Passwords do not match. Please verify and re-enter.",
+        mode: "reset-password",
+        pendingEmail: pending.email,
+        pageTitle: "Reset Password",
+      });
+    }
+
+    const newHash = hashPassword(newPassword);
+
+    try {
+      await fdb.updateAdminPassword(pending.email, newHash);
+    } catch (e) {
+      console.warn("Could not save new password in Firestore:", e.message);
+    }
+
+    delete request.session.pendingReset;
+
+    return response.redirect("/admin/login?message=Password+updated+successfully.+Please+sign+in+with+your+new+password.");
+  }
+);
+
+
+// ----------------------------------------------------
+// CLIENT ENQUIRIES ADMIN MANAGEMENT
+// ----------------------------------------------------
+app.get("/admin/enquiries", requireAdmin, async (request, response) => {
+  response.set("Cache-Control", "no-store");
+  try {
+    const enquiries = await fdb.getEnquiries();
+    const csrfToken = issueCsrfToken(request);
+    response.render("enquiries-list", {
+      enquiries,
+      csrfToken,
+      deleted: request.query.deleted === "1",
+      statusUpdated: request.query.statusUpdated === "1",
+      adminUser: request.session?.adminUser || null,
+      pageTitle: "Client Enquiries",
+    });
+  } catch (err) {
+    console.error("Could not fetch enquiries:", err);
+    response.status(503).send("Could not load client enquiries.");
+  }
+});
+
+
+app.post(
+  "/admin/enquiries/:id/status",
+  requireAdmin,
+  requireCsrf,
+  async (request, response) => {
+    try {
+      const status = clean(request.body.status) || "New";
+      await fdb.updateEnquiryStatus(request.params.id, status);
+      return response.redirect("/admin/enquiries?statusUpdated=1");
+    } catch (err) {
+      console.error("Could not update enquiry status:", err);
+      return response.redirect("/admin/enquiries");
+    }
   },
 );
 
 app.post(
-  "/letterhead/logout",
+  "/admin/enquiries/:id/delete",
   requireAdmin,
   requireCsrf,
-  (request, response, next) => {
-    request.session.destroy((error) => {
-      if (error) {
-        return next(error);
+  async (request, response) => {
+    try {
+      const ok = await fdb.deleteEnquiry(request.params.id);
+      if (!ok) {
+        return response.status(404).send("Enquiry not found.");
       }
-      response.clearCookie("sse_letterhead_session", { path: "/letterhead" });
-      response.redirect("/letterhead/login");
-    });
+      return response.redirect("/admin/enquiries?deleted=1");
+    } catch (err) {
+      console.error("Could not delete enquiry:", err);
+      return response.status(503).send("Could not delete enquiry.");
+    }
+  },
+);
+
+app.all(
+  ["/letterhead/logout", "/admin/logout"],
+  (request, response, next) => {
+    if (request.session) {
+      request.session.destroy((error) => {
+        if (error) {
+          return next(error);
+        }
+        response.clearCookie("sse_admin_session", { path: "/" });
+        return response.redirect("/admin/login?message=Signed+out+successfully.");
+      });
+    } else {
+      response.clearCookie("sse_admin_session", { path: "/" });
+      return response.redirect("/admin/login");
+    }
   },
 );
 
 app.get("/letterhead", requireAdmin, async (request, response) => {
-  if (!databaseReady) {
-    return response.status(503).send("PostgreSQL is not available.");
-  }
   try {
-    const result = await pool.query(
-      `SELECT id, title, document_date, updated_at
-       FROM letterhead_documents
-       ORDER BY updated_at DESC, id DESC`,
-    );
+    const documents = await fdb.getLetterheadDocuments();
     return response.render("letterhead-list", {
-      documents: result.rows,
+      documents,
       csrfToken: issueCsrfToken(request),
+      adminUser: request.session.adminUser,
       deleted: request.query.deleted === "1",
     });
   } catch (error) {
-    console.error("Could not load letterhead documents:", error);
+    console.error("Could not load letterhead documents from Firestore:", error);
     return response.status(503).send("Could not load letterhead documents.");
   }
 });
@@ -1167,6 +1472,7 @@ app.get(
         content: "",
       },
       csrfToken: issueCsrfToken(request),
+      adminUser: request.session.adminUser,
       isNew: true,
       error: "",
       saved: false,
@@ -1184,35 +1490,20 @@ app.post(
       return response.status(400).render("letterhead-editor", {
         document: { ...values, document_date: values.date },
         csrfToken: issueCsrfToken(request),
+        adminUser: request.session.adminUser,
         isNew: true,
         error,
         saved: false,
       });
     }
-    if (!databaseReady) {
-      return response.status(503).send("PostgreSQL is not available.");
-    }
 
     try {
-      const result = await pool.query(
-        `INSERT INTO letterhead_documents
-          (title, document_date, recipient, subject, reference, content)
-         VALUES ($1, $2, $3, $4, $5, $6)
-         RETURNING id`,
-        [
-          values.title,
-          values.date || null,
-          values.recipient,
-          values.subject,
-          values.reference,
-          values.content,
-        ],
-      );
+      const docId = await fdb.createLetterheadDocument(values);
       return response.redirect(
-        `/letterhead/documents/${result.rows[0].id}/edit?saved=1`,
+        `/letterhead/documents/${docId}/edit?saved=1`,
       );
     } catch (databaseError) {
-      console.error("Could not create letterhead document:", databaseError);
+      console.error("Could not create letterhead document in Firestore:", databaseError);
       return response.status(503).send("Could not save the document.");
     }
   },
@@ -1222,29 +1513,21 @@ app.get(
   "/letterhead/documents/:id/edit",
   requireAdmin,
   async (request, response) => {
-    if (!/^\d+$/.test(request.params.id)) {
-      return response.status(404).send("Document not found.");
-    }
-    if (!databaseReady) {
-      return response.status(503).send("PostgreSQL is not available.");
-    }
     try {
-      const result = await pool.query(
-        "SELECT * FROM letterhead_documents WHERE id = $1",
-        [request.params.id],
-      );
-      if (!result.rowCount) {
+      const document = await fdb.getLetterheadDocumentById(request.params.id);
+      if (!document) {
         return response.status(404).send("Document not found.");
       }
       return response.render("letterhead-editor", {
-        document: result.rows[0],
+        document,
         csrfToken: issueCsrfToken(request),
+        adminUser: request.session.adminUser,
         isNew: false,
         error: "",
         saved: request.query.saved === "1",
       });
     } catch (error) {
-      console.error("Could not load letterhead document:", error);
+      console.error("Could not load letterhead document from Firestore:", error);
       return response.status(503).send("Could not load the document.");
     }
   },
@@ -1272,33 +1555,16 @@ app.post(
         saved: false,
       });
     }
-    if (!databaseReady) {
-      return response.status(503).send("PostgreSQL is not available.");
-    }
     try {
-      const result = await pool.query(
-        `UPDATE letterhead_documents
-         SET title = $1, document_date = $2, recipient = $3, subject = $4,
-             reference = $5, content = $6, updated_at = NOW()
-         WHERE id = $7`,
-        [
-          values.title,
-          values.date || null,
-          values.recipient,
-          values.subject,
-          values.reference,
-          values.content,
-          request.params.id,
-        ],
-      );
-      if (!result.rowCount) {
+      const updated = await fdb.updateLetterheadDocument(request.params.id, values);
+      if (!updated) {
         return response.status(404).send("Document not found.");
       }
       return response.redirect(
         `/letterhead/documents/${request.params.id}/edit?saved=1`,
       );
     } catch (databaseError) {
-      console.error("Could not update letterhead document:", databaseError);
+      console.error("Could not update letterhead document in Firestore:", databaseError);
       return response.status(503).send("Could not save the document.");
     }
   },
@@ -1308,21 +1574,11 @@ app.get(
   "/letterhead/documents/:id/download",
   requireAdmin,
   async (request, response) => {
-    if (!/^\d+$/.test(request.params.id)) {
-      return response.status(404).send("Document not found.");
-    }
-    if (!databaseReady) {
-      return response.status(503).send("PostgreSQL is not available.");
-    }
     try {
-      const result = await pool.query(
-        "SELECT * FROM letterhead_documents WHERE id = $1",
-        [request.params.id],
-      );
-      if (!result.rowCount) {
+      const document = await fdb.getLetterheadDocumentById(request.params.id);
+      if (!document) {
         return response.status(404).send("Document not found.");
       }
-      const document = result.rows[0];
       const pdf = await createLetterheadPdf({
         title: document.title,
         date: document.document_date
@@ -1353,24 +1609,399 @@ app.post(
   requireAdmin,
   requireCsrf,
   async (request, response) => {
-    if (!/^\d+$/.test(request.params.id)) {
-      return response.status(404).send("Document not found.");
-    }
-    if (!databaseReady) {
-      return response.status(503).send("PostgreSQL is not available.");
-    }
     try {
-      const result = await pool.query(
-        "DELETE FROM letterhead_documents WHERE id = $1",
-        [request.params.id],
-      );
-      if (!result.rowCount) {
+      const deleted = await fdb.deleteLetterheadDocument(request.params.id);
+      if (!deleted) {
         return response.status(404).send("Document not found.");
       }
       return response.redirect("/letterhead?deleted=1");
     } catch (error) {
-      console.error("Could not delete letterhead document:", error);
+      console.error("Could not delete letterhead document from Firestore:", error);
       return response.status(503).send("Could not delete the document.");
+    }
+  },
+);
+
+function validateInvoicePayload(body) {
+  const values = {
+    invoice_number: clean(body.invoice_number),
+    invoice_date: clean(body.invoice_date) || new Date().toISOString().slice(0, 10),
+    due_date: clean(body.due_date) || null,
+    work_order_no: clean(body.work_order_no || body.po_number),
+    work_order_date: clean(body.work_order_date || body.po_date) || null,
+    client_name: clean(body.client_name),
+    client_gstin: clean(body.client_gstin).toUpperCase(),
+    client_pan: clean(body.client_pan).toUpperCase(),
+    client_address: clean(body.client_address),
+    client_state: clean(body.client_state) || "Rajasthan",
+    client_state_code: clean(body.client_state_code) || "08",
+    project_site: clean(body.project_site || body.project_name),
+    place_of_supply: clean(body.place_of_supply) || "Rajasthan (08)",
+    reverse_charge: body.reverse_charge === "true" || body.reverse_charge === "YES",
+    status: ["Pending", "Paid", "Cancelled"].includes(body.status)
+      ? body.status
+      : "Pending",
+    bank_name: clean(body.bank_name) || "State Bank of India",
+    bank_account_no: clean(body.bank_account_no || body.bank_account_number) || "38920194821",
+    bank_ifsc: clean(body.bank_ifsc) || "SBIN0031168",
+    bank_branch: clean(body.bank_branch) || "Jalore Main Branch, Rajasthan",
+    terms_conditions: typeof (body.terms_conditions || body.terms) === "string" ? (body.terms_conditions || body.terms).trim() : "",
+    notes: typeof body.notes === "string" ? body.notes.trim() : "",
+  };
+
+  if (!values.invoice_number) {
+    return { values, items: [], error: "Invoice Number is required." };
+  }
+  if (!values.client_name) {
+    return { values, items: [], error: "Billed Client / Firm Name is required." };
+  }
+
+  // Parse dynamic line items - supports both array format from editor and plain arrays
+  let descriptions = Array.isArray(body["item_description[]"])
+    ? body["item_description[]"]
+    : Array.isArray(body.item_description)
+      ? body.item_description
+      : [body["item_description[]"] || body.item_description].filter(Boolean);
+
+  let sacs = Array.isArray(body["item_sac[]"])
+    ? body["item_sac[]"]
+    : Array.isArray(body.item_sac)
+      ? body.item_sac
+      : [body["item_sac[]"] || body.item_sac].filter(Boolean);
+
+  let units = Array.isArray(body["item_unit[]"])
+    ? body["item_unit[]"]
+    : Array.isArray(body.item_unit)
+      ? body.item_unit
+      : [body["item_unit[]"] || body.item_unit].filter(Boolean);
+
+  let quantities = Array.isArray(body["item_quantity[]"])
+    ? body["item_quantity[]"]
+    : Array.isArray(body.item_qty)
+      ? body.item_qty
+      : [body["item_quantity[]"] || body.item_qty].filter(Boolean);
+
+  let rates = Array.isArray(body["item_rate[]"])
+    ? body["item_rate[]"]
+    : Array.isArray(body.item_rate)
+      ? body.item_rate
+      : [body["item_rate[]"] || body.item_rate].filter(Boolean);
+
+  const items = [];
+  let subtotal = 0;
+
+  for (let i = 0; i < descriptions.length; i++) {
+    const desc = clean(descriptions[i]);
+    if (!desc) continue;
+    const sac_code = clean(sacs[i]) || "995434";
+    const unit = clean(units[i]) || "Nos";
+    const quantity = parseFloat(quantities[i]) || 1;
+    const rate = parseFloat(rates[i]) || 0;
+    const amount = Math.round(quantity * rate * 100) / 100;
+    subtotal += amount;
+
+    items.push({
+      description: desc,
+      sac_code,
+      unit,
+      quantity,
+      rate,
+      amount,
+    });
+  }
+
+  if (items.length === 0) {
+    return { values, items: [], error: "Please add at least one line item with a description and rate." };
+  }
+
+  subtotal = Math.round(subtotal * 100) / 100;
+  const isInter = body.tax_type === "inter" || body.tax_type === "INTER";
+  let cgst_rate = isInter ? 0 : 9;
+  let sgst_rate = isInter ? 0 : 9;
+  let igst_rate = isInter ? 18 : 0;
+
+  let cgst_amount = isInter ? 0 : Math.round(subtotal * 0.09 * 100) / 100;
+  let sgst_amount = isInter ? 0 : Math.round(subtotal * 0.09 * 100) / 100;
+  let igst_amount = isInter ? Math.round(subtotal * 0.18 * 100) / 100 : 0;
+
+  const total_tax = Math.round((cgst_amount + sgst_amount + igst_amount) * 100) / 100;
+  const total_amount = Math.round((subtotal + total_tax) * 100) / 100;
+  const amount_in_words = numberToWordsINR(total_amount);
+
+  values.items = items;
+  values.subtotal = subtotal;
+  values.cgst_rate = cgst_rate;
+  values.cgst_amount = cgst_amount;
+  values.sgst_rate = sgst_rate;
+  values.sgst_amount = sgst_amount;
+  values.igst_rate = igst_rate;
+  values.igst_amount = igst_amount;
+  values.total_amount = total_amount;
+  values.amount_in_words = amount_in_words;
+
+  return { values, items, error: "" };
+}
+
+// Invoices Dashboard
+app.get("/admin/invoices", requireAdmin, async (request, response) => {
+  try {
+    const invoices = await fdb.getInvoices();
+    const totalRevenue = invoices
+      .filter((inv) => inv.status !== "Cancelled")
+      .reduce((sum, inv) => sum + parseFloat(inv.total_amount || 0), 0);
+    const paidRevenue = invoices
+      .filter((inv) => inv.status === "Paid")
+      .reduce((sum, inv) => sum + parseFloat(inv.total_amount || 0), 0);
+    const pendingRevenue = invoices
+      .filter((inv) => inv.status === "Pending")
+      .reduce((sum, inv) => sum + parseFloat(inv.total_amount || 0), 0);
+
+    const stats = {
+      totalRevenue,
+      totalCount: invoices.length,
+      paidRevenue,
+      paidCount: invoices.filter((inv) => inv.status === "Paid").length,
+      pendingRevenue,
+      pendingCount: invoices.filter((inv) => inv.status === "Pending").length,
+    };
+
+    return response.render("invoices-list", {
+      invoices,
+      stats,
+      csrfToken: issueCsrfToken(request),
+      adminUser: request.session.adminUser,
+      deleted: request.query.deleted === "1",
+    });
+  } catch (error) {
+    console.error("Could not load invoices from Firestore:", error);
+    return response.status(503).send("Could not load invoices.");
+  }
+});
+
+// New Invoice Page
+app.get("/admin/invoices/new", requireAdmin, (request, response) => {
+  const today = new Date().toISOString().slice(0, 10);
+  const serial = Math.floor(100 + Math.random() * 900);
+  const defaultInvoiceNumber = `SSE/2026-27/${serial}`;
+
+  response.render("invoice-editor", {
+    invoice: {
+      invoice_number: defaultInvoiceNumber,
+      invoice_date: today,
+      due_date: "",
+      work_order_no: "",
+      work_order_date: "",
+      client_name: "",
+      client_gstin: "",
+      client_pan: "",
+      client_address: "",
+      client_state: "Rajasthan",
+      client_state_code: "08",
+      project_site: "250 MW Solar PV Plant, Nokha, Bikaner, Rajasthan",
+      place_of_supply: "Rajasthan (08)",
+      reverse_charge: false,
+      status: "Pending",
+      items: [
+        {
+          description: "Civil Foundation & MMS Piling Works for Solar PV Power Plant as per approved engineering drawings",
+          sac_code: "995434",
+          unit: "MW",
+          quantity: 5,
+          rate: 185000,
+          amount: 925000,
+        },
+      ],
+      subtotal: 925000,
+      cgst_rate: 9,
+      cgst_amount: 83250,
+      sgst_rate: 9,
+      sgst_amount: 83250,
+      igst_rate: 0,
+      igst_amount: 0,
+      total_amount: 1091500,
+      bank_name: "State Bank of India",
+      bank_account_no: "38920194821",
+      bank_ifsc: "SBIN0031168",
+      bank_branch: "Jalore Main Branch, Rajasthan",
+      terms_conditions: "1. Certified that the particulars given above are true and correct.\n2. Payment terms: 100% within 30 days of invoice presentation.\n3. Interest @ 18% p.a. applicable on delayed payments.\n4. Subject to Jalore / Jodhpur jurisdiction only.",
+      notes: "Certified by Resident EPC Project Manager.",
+    },
+    csrfToken: issueCsrfToken(request),
+    adminUser: request.session.adminUser,
+    isNew: true,
+    error: "",
+    saved: false,
+  });
+});
+
+// Create Invoice
+app.post(
+  "/admin/invoices",
+  requireAdmin,
+  requireCsrf,
+  async (request, response) => {
+    const { values, items, error } = validateInvoicePayload(request.body);
+    if (error) {
+      return response.status(400).render("invoice-editor", {
+        invoice: values,
+        csrfToken: issueCsrfToken(request),
+        adminUser: request.session.adminUser,
+        isNew: true,
+        error,
+        saved: false,
+      });
+    }
+
+    try {
+      const docId = await fdb.createInvoice(values, items);
+      fdb.getInvoiceById(docId).then((savedInv) => {
+        if (savedInv) {
+          sendInvoiceEmailToAdmin(savedInv, request.session?.adminUser?.email);
+        }
+      }).catch((e) => console.warn("Notice sending invoice email:", e.message));
+      return response.redirect(`/admin/invoices/${docId}`);
+    } catch (databaseError) {
+      console.error("Could not create invoice in Firestore:", databaseError);
+      return response.status(503).render("invoice-editor", {
+        invoice: values,
+        csrfToken: issueCsrfToken(request),
+        adminUser: request.session.adminUser,
+        isNew: true,
+        error: "Database error while saving invoice: " + databaseError.message,
+        saved: false,
+      });
+    }
+  },
+);
+
+// View Invoice (Printable HTML)
+app.get(
+  "/admin/invoices/:id",
+  requireAdmin,
+  async (request, response) => {
+    try {
+      const invoice = await fdb.getInvoiceById(request.params.id);
+      if (!invoice) {
+        return response.status(404).send("Invoice not found.");
+      }
+      if (!invoice.amount_in_words) {
+        invoice.amount_in_words = numberToWordsINR(invoice.total_amount);
+      }
+
+      return response.render("invoice-view", {
+        invoice,
+        csrfToken: issueCsrfToken(request),
+        adminUser: request.session.adminUser,
+      });
+    } catch (error) {
+      console.error("Could not load invoice view from Firestore:", error);
+      return response.status(503).send("Could not load invoice.");
+    }
+  },
+);
+
+// Edit Invoice Page
+app.get(
+  "/admin/invoices/:id/edit",
+  requireAdmin,
+  async (request, response) => {
+    try {
+      const invoice = await fdb.getInvoiceById(request.params.id);
+      if (!invoice) {
+        return response.status(404).send("Invoice not found.");
+      }
+      return response.render("invoice-editor", {
+        invoice,
+        csrfToken: issueCsrfToken(request),
+        adminUser: request.session.adminUser,
+        isNew: false,
+        error: "",
+        saved: request.query.saved === "1",
+      });
+    } catch (error) {
+      console.error("Could not load invoice for editing from Firestore:", error);
+      return response.status(503).send("Could not load invoice.");
+    }
+  },
+);
+
+// Update Invoice
+app.post(
+  "/admin/invoices/:id",
+  requireAdmin,
+  requireCsrf,
+  async (request, response) => {
+    const { values, items, error } = validateInvoicePayload(request.body);
+    if (error) {
+      values.id = request.params.id;
+      return response.status(400).render("invoice-editor", {
+        invoice: values,
+        csrfToken: issueCsrfToken(request),
+        adminUser: request.session.adminUser,
+        isNew: false,
+        error,
+        saved: false,
+      });
+    }
+    try {
+      const updated = await fdb.updateInvoice(request.params.id, values, items);
+      if (!updated) {
+        return response.status(404).send("Invoice not found.");
+      }
+      fdb.getInvoiceById(request.params.id).then((savedInv) => {
+        if (savedInv) {
+          sendInvoiceEmailToAdmin(savedInv, request.session?.adminUser?.email);
+        }
+      }).catch((e) => console.warn("Notice sending invoice email:", e.message));
+      return response.redirect(`/admin/invoices/${request.params.id}`);
+    } catch (databaseError) {
+      console.error("Could not update invoice in Firestore:", databaseError);
+      return response.status(503).send("Could not update invoice.");
+    }
+  },
+);
+
+// Download Invoice PDF
+app.get(
+  "/admin/invoices/:id/download",
+  requireAdmin,
+  async (request, response) => {
+    try {
+      const invoice = await fdb.getInvoiceById(request.params.id);
+      if (!invoice) {
+        return response.status(404).send("Invoice not found.");
+      }
+      const pdf = await createInvoicePdf(invoice);
+      const filename = `Invoice-${String(invoice.invoice_number || "INV").replace(/[^a-zA-Z0-9_-]/g, "_")}.pdf`;
+
+      response.set({
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Cache-Control": "no-store",
+      });
+      return response.send(pdf);
+    } catch (error) {
+      console.error("Could not generate invoice PDF:", error);
+      return response.status(422).send("Could not generate Invoice PDF.");
+    }
+  },
+);
+
+// Delete Invoice
+app.post(
+  "/admin/invoices/:id/delete",
+  requireAdmin,
+  requireCsrf,
+  async (request, response) => {
+    try {
+      const deleted = await fdb.deleteInvoice(request.params.id);
+      if (!deleted) {
+        return response.status(404).send("Invoice not found.");
+      }
+      return response.redirect("/admin/invoices?deleted=1");
+    } catch (error) {
+      console.error("Could not delete invoice from Firestore:", error);
+      return response.status(503).send("Could not delete invoice.");
     }
   },
 );
@@ -1381,31 +2012,10 @@ app.post("/api/enquiries", enquiryLimiter, async (request, response) => {
     return response.status(400).json({ error });
   }
 
-  if (!databaseReady) {
-    return response.status(503).json({
-      error:
-        "Enquiry storage is temporarily unavailable. Please call +91 96363 20419 or try again later.",
-    });
-  }
-
   try {
-    await pool.query(
-      `INSERT INTO sse_jlr
-        (name, company, email, phone, project_type, location, timeline, requirements)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-      [
-        values.name,
-        values.company,
-        values.email,
-        values.phone,
-        values.projectType,
-        values.location,
-        values.timeline,
-        values.requirements,
-      ],
-    );
+    await fdb.saveEnquiry(values);
   } catch (error) {
-    console.error("Could not save project enquiry to PostgreSQL:", error);
+    console.error("Could not save project enquiry to Firestore:", error);
     return response.status(503).json({
       error:
         "We could not save your enquiry right now. Please call +91 96363 20419 or try again later.",
@@ -1433,84 +2043,32 @@ app.use((_request, response) => {
   response.status(404).send("Page not found.");
 });
 
-async function start() {
-  if (process.env.NODE_ENV === "development") {
-    const { createServer } = await import("vite");
-    viteServer = await createServer({
-      configFile: path.join(__dirname, "vite.config.mjs"),
-      server: { middlewareMode: true },
-      appType: "custom",
+// Export the Express app for Firebase Cloud Functions
+module.exports = { app };
+
+// Only start the server when running directly (not as a Cloud Function)
+if (require.main === module) {
+  async function start() {
+    if (process.env.NODE_ENV === "development") {
+      const { createServer } = await import("vite");
+      viteServer = await createServer({
+        configFile: path.join(__dirname, "vite.config.mjs"),
+        server: { middlewareMode: true },
+        appType: "custom",
+      });
+    }
+
+    app.listen(port, () => {
+      console.log(`Shree Shantinath Enterprises website listening on http://localhost:${port}`);
+      console.log("Connected to Firebase Cloud Firestore (projectId: sse-jalore).");
+      if (viteServer) {
+        console.log("React development mode is enabled with Vite HMR.");
+      }
     });
   }
 
-  app.listen(port, () => {
-    console.log(`Shree Shantinath Enterprises website listening on http://localhost:${port}`);
-    if (viteServer) {
-      console.log("React development mode is enabled with Vite HMR.");
-    }
+  start().catch((error) => {
+    console.error("Could not start the website:", error);
+    process.exitCode = 1;
   });
-
-  pool
-    .query(`
-    CREATE TABLE IF NOT EXISTS sse_jlr (
-      id BIGSERIAL PRIMARY KEY,
-      name VARCHAR(120) NOT NULL,
-      company VARCHAR(160) NOT NULL DEFAULT '',
-      email VARCHAR(254) NOT NULL,
-      phone VARCHAR(40) NOT NULL DEFAULT '',
-      project_type VARCHAR(100) NOT NULL DEFAULT '',
-      location VARCHAR(160) NOT NULL DEFAULT '',
-      timeline VARCHAR(100) NOT NULL DEFAULT '',
-      requirements TEXT NOT NULL,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )
-  `)
-    .then(() =>
-      pool.query(`
-        CREATE TABLE IF NOT EXISTS letterhead_documents (
-          id BIGSERIAL PRIMARY KEY,
-          title VARCHAR(160) NOT NULL,
-          document_date DATE,
-          recipient VARCHAR(500) NOT NULL DEFAULT '',
-          subject VARCHAR(300) NOT NULL DEFAULT '',
-          reference VARCHAR(100) NOT NULL DEFAULT '',
-          content TEXT NOT NULL,
-          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-        )
-      `),
-    )
-    .then(() =>
-      pool.query(`
-        CREATE TABLE IF NOT EXISTS letterhead_sessions (
-          sid VARCHAR NOT NULL COLLATE "default",
-          sess JSON NOT NULL,
-          expire TIMESTAMP(6) NOT NULL,
-          CONSTRAINT letterhead_sessions_pkey PRIMARY KEY (sid)
-        )
-      `),
-    )
-    .then(() =>
-      pool.query(`
-        CREATE INDEX IF NOT EXISTS letterhead_sessions_expire_idx
-        ON letterhead_sessions (expire)
-      `),
-    )
-    .then(() => {
-      databaseReady = true;
-      console.log(
-        "PostgreSQL is ready; enquiries and letterhead documents are available.",
-      );
-    })
-    .catch((error) => {
-      console.error(
-        "PostgreSQL initialization failed; the website is available, but enquiries cannot be stored until the database is configured.",
-        error,
-      );
-    });
 }
-
-start().catch((error) => {
-  console.error("Could not start the website:", error);
-  process.exitCode = 1;
-});

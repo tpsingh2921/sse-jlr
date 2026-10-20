@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="invBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#022c22"/>
+    </linearGradient>
+    <linearGradient id="invGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="invEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+  <!-- Receipt / Invoice Sheet with Sawtooth / Perforated Top/Bottom -->
+  <path d="M12 8 L16 5 L20 8 L24 5 L28 8 L32 5 L36 8 L40 5 L44 8 L48 5 L52 8 L52 56 L48 59 L44 56 L40 59 L36 56 L32 59 L28 56 L24 59 L20 56 L16 59 L12 56 Z" fill="url(#invBg)" stroke="url(#invEmerald)" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Rupee Symbol '₹' Badge -->
+  <circle cx="25" cy="24" r="10" fill="url(#invGold)"/>
+  <!-- Rupee Symbol Path -->
+  <path d="M21 19 L29 19 M21 22 L27 22 M23 19 C27 19 27 25 23 25 L21 25 L28 30" fill="none" stroke="#071a14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Calculation Table Rows -->
+  <line x1="38" y1="20" x2="46" y2="20" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
+  <line x1="38" y1="26" x2="46" y2="26" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
+  <line x1="18" y1="38" x2="46" y2="38" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="2 2"/>
+  <line x1="18" y1="44" x2="32" y2="44" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+  <line x1="38" y1="44" x2="46" y2="44" stroke="url(#invGold)" stroke-width="2" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#071a14">
+    <meta name="robots" content="noindex, nofollow">
+    <title>⚡ Tax Invoices | Shree Shantinath Enterprises</title>
+    <link rel="icon" type="image/svg+xml" href="/favicons/favicon-invoices.svg?v=7">
+    <link rel="shortcut icon" href="/favicons/favicon-invoices.svg?v=7">
+    <link rel="apple-touch-icon" href="/favicons/favicon-invoices.svg?v=7">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css?v=10">
+    <script>
+      (function() {
+        var t = localStorage.getItem('sse_theme');
+        if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
+  </head>
+  <body class="letterhead-admin admin-hub-body">
+    <!-- Top Global Admin Bar -->
+    <header class="site-header admin-global-header">
+      <div class="nav-wrap">
+        <a class="brand" href="/" aria-label="Shree Shantinath Enterprises home">
+          <span class="brand-mark" aria-hidden="true">
+            <img src="/images/brand-mark.svg" alt="" width="40" height="40">
+          </span>
+          <span class="brand-name">SHREE SHANTINATH <b>ENTERPRISES</b></span>
+        </a>
+
+        <!-- Admin Navigation Tabs -->
+        <nav class="admin-top-tabs">
+          <a href="/letterhead" class="admin-tab ">
+            <span class="tab-icon">📄</span> Letterheads
+          </a>
+          <a href="/admin/invoices" class="admin-tab is-active">
+            <span class="tab-icon">🧾</span> Tax Invoices
+          </a>
+          <a href="/admin/enquiries" class="admin-tab ">
+            <span class="tab-icon">📬</span> Client Enquiries
+          </a>
+        </nav>
+
+        <div class="admin-header-actions">
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle dark mode theme" title="Toggle gradient dark theme">
+            <span class="sun-icon" style="display:none;">☀️</span>
+            <span class="moon-icon">🌙</span>
+            <span class="theme-toggle-label">Dark</span>
+          </button>
+          <% if (locals.adminUser) { %>
+            <div class="admin-user-pill">
+              <span class="user-status-dot"></span>
+              <span><%= adminUser.name %></span>
+            </div>
+          <% } %>
+          <a class="admin-back-link" href="/" target="_blank">View Site ↗</a>
+          <form action="/letterhead/logout" method="post" style="margin:0;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="admin-link-button" type="submit">Sign out</button>
+          </form>
+        </div>
+      </div>
+    </header>
+
+    <main class="admin-main admin-main-wide">
+      <div class="admin-page-heading">
+        <div>
+          <p class="eyebrow"><span class="eyebrow-line"></span> GST TAX INVOICE MANAGEMENT</p>
+          <h1>Clean Energy <span>Tax Invoices.</span></h1>
+          <p class="admin-description">
+            Generate and manage GST-compliant tax invoices specifically tailored for utility solar parks, wind turbine civil works, and EPC contracting.
+          </p>
+        </div>
+        <div class="admin-heading-actions">
+          <a class="button button-dark" href="/admin/invoices/new">
+            <span>Create Tax Invoice</span> ＋
+          </a>
+        </div>
+      </div>
+
+      <% if (locals.deleted) { %>
+        <p class="admin-alert admin-alert-success" role="status">Invoice has been deleted.</p>
+      <% } %>
+
+      <!-- Invoices KPI Stats Bar -->
+      <div class="invoice-metrics-band">
+        <div class="inv-metric-card">
+          <span class="inv-metric-label">TOTAL INVOICED REVENUE</span>
+          <strong class="inv-metric-val">₹ <%= Number(stats.totalRevenue || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></strong>
+          <small><%= stats.totalCount || 0 %> Tax Invoices Generated</small>
+        </div>
+        <div class="inv-metric-card">
+          <span class="inv-metric-label">RECEIVED / SETTLED</span>
+          <strong class="inv-metric-val text-green">₹ <%= Number(stats.paidRevenue || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></strong>
+          <small><%= stats.paidCount || 0 %> Invoices Paid</small>
+        </div>
+        <div class="inv-metric-card">
+          <span class="inv-metric-label">PENDING RECEIVABLES</span>
+          <strong class="inv-metric-val text-amber">₹ <%= Number(stats.pendingRevenue || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></strong>
+          <small><%= stats.pendingCount || 0 %> Awaiting Payment</small>
+        </div>
+        <div class="inv-metric-card">
+          <span class="inv-metric-label">GST REGISTRATION COMPLIANCE</span>
+          <strong class="inv-metric-val font-mono">08BOKPV8974D1Z5</strong>
+          <small>Rajasthan &bull; State Code 08 &bull; MSME Verified</small>
+        </div>
+      </div>
+
+      <% if (invoices.length) { %>
+        <div class="document-list-card invoice-table-wrap">
+          <div class="invoice-table-header">
+            <span>INVOICE NO &amp; DATE</span>
+            <span>CLIENT &amp; PROJECT SITE</span>
+            <span>TAX BREAKDOWN</span>
+            <span>TOTAL AMOUNT</span>
+            <span>STATUS</span>
+            <span>ACTIONS</span>
+          </div>
+
+          <div class="invoice-rows-container">
+            <% invoices.forEach((inv) => { %>
+              <div class="invoice-item-row">
+                <div class="inv-col-number">
+                  <a href="/admin/invoices/<%= inv.id %>" class="inv-no-link"><%= inv.invoice_number %></a>
+                  <span class="inv-date">
+                    <%= new Date(inv.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) %>
+                  </span>
+                  <% if (inv.work_order_no) { %>
+                    <small class="inv-wo">WO: <%= inv.work_order_no %></small>
+                  <% } %>
+                </div>
+
+                <div class="inv-col-client">
+                  <strong><%= inv.client_name %></strong>
+                  <span class="inv-gst-tag">GST: <%= inv.client_gstin || 'Unregistered / B2C' %></span>
+                  <% if (inv.project_site) { %>
+                    <small class="inv-site-name">📍 <%= inv.project_site %></small>
+                  <% } %>
+                </div>
+
+                <div class="inv-col-tax">
+                  <span class="taxable-val">Taxable: ₹<%= Number(inv.subtotal).toLocaleString('en-IN') %></span>
+                  <% if (Number(inv.igst_amount) > 0) { %>
+                    <small class="tax-pill">IGST (18%): ₹<%= Number(inv.igst_amount).toLocaleString('en-IN') %></small>
+                  <% } else { %>
+                    <small class="tax-pill">CGST+SGST (18%): ₹<%= (Number(inv.cgst_amount) + Number(inv.sgst_amount)).toLocaleString('en-IN') %></small>
+                  <% } %>
+                </div>
+
+                <div class="inv-col-total">
+                  <strong class="inv-amount">₹ <%= Number(inv.total_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></strong>
+                  <small class="pos-tag">POS: <%= inv.place_of_supply || 'Rajasthan' %></small>
+                </div>
+
+                <div class="inv-col-status">
+                  <span class="status-pill status-<%= (inv.status || 'pending').toLowerCase() %>">
+                    <%= inv.status || 'Pending' %>
+                  </span>
+                </div>
+
+                <div class="inv-col-actions">
+                  <a class="action-btn-pill action-view" href="/admin/invoices/<%= inv.id %>" title="View Print Invoice">View</a>
+                  <a class="action-btn-pill action-download" href="/admin/invoices/<%= inv.id %>/download" title="Download PDF">PDF ↓</a>
+                  <a class="action-btn-pill action-edit" href="/admin/invoices/<%= inv.id %>/edit" title="Edit">Edit</a>
+                  <form action="/admin/invoices/<%= inv.id %>/delete" method="post" data-confirm-delete="<%= inv.invoice_number %>" style="margin:0;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="admin-danger-button">Delete</button>
+                  </form>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      <% } else { %>
+        <section class="admin-empty-card">
+          <span class="empty-icon-spark">🧾</span>
+          <h2>No Tax Invoices Generated Yet</h2>
+          <p>
+            Create your first solar civil works tax invoice. Includes automated HSN/SAC codes, CGST/SGST/IGST calculation, Indian rupee number-to-words, and exportable PDF format.
+          </p>
+          <a class="button button-dark" href="/admin/invoices/new">
+            <span>Generate First Invoice</span> ＋
+          </a>
+        </section>
+      <% } %>
+    </main>
+    <script src="/js/letterhead.js" defer></script>
+    <script src="/js/main.js?v=3" defer></script>
+  </body>
+</html>

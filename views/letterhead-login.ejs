@@ -3,43 +3,283 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f7f8f2">
+    <meta name="theme-color" content="#071a14">
     <meta name="robots" content="noindex, nofollow">
-    <meta name="description" content="Secure document management for Shree Shantinath Enterprises.">
-    <title>Admin Sign In | Shree Shantinath Enterprises</title>
-    <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml">
+    <meta name="description" content="Secure administration and document management for Shree Shantinath Enterprises.">
+    <title>⚡ <%= pageTitle || 'Admin Sign In' %> | Shree Shantinath Enterprises</title>
+    <link rel="icon" type="image/svg+xml" href="/favicons/favicon-admin.svg?v=7">
+    <link rel="shortcut icon" href="/favicons/favicon-admin.svg?v=7">
+    <link rel="apple-touch-icon" href="/favicons/favicon-admin.svg?v=7">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=5">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css?v=14">
+    <script>
+      (function() {
+        var t = localStorage.getItem('sse_theme');
+        if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
   </head>
-  <body class="letterhead-admin">
+  <body class="letterhead-admin auth-page-body">
     <header class="site-header">
       <div class="nav-wrap">
         <a class="brand" href="/" aria-label="Shree Shantinath Enterprises home">
-          <span class="brand-mark" aria-hidden="true"><img src="/images/brand-mark.svg" alt="" width="48" height="48"></span>
+          <span class="brand-mark" aria-hidden="true">
+            <img src="/images/brand-mark.svg" alt="" width="44" height="44">
+          </span>
           <span class="brand-name">SHREE SHANTINATH <b>ENTERPRISES</b></span>
         </a>
-        <a class="admin-back-link" href="/">Back to website</a>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle dark mode theme" title="Toggle gradient dark theme">
+            <span class="sun-icon" style="display:none;">☀️</span>
+            <span class="moon-icon">🌙</span>
+            <span class="theme-toggle-label">Dark</span>
+          </button>
+          <a class="admin-back-link" href="/">← Return to Website</a>
+        </div>
       </div>
     </header>
-    <main class="admin-main">
-      <section class="admin-card">
-        <p class="eyebrow"><span class="eyebrow-line"></span> PRIVATE DOCUMENT AREA</p>
-        <h1>Letterhead<br><span>document library.</span></h1>
-        <p class="admin-description">Sign in to create, edit, download and manage company documents.</p>
-        <% if (error) { %><p class="admin-alert <%= configured ? 'admin-alert-error' : 'admin-alert-info' %>" role="alert"><%= error %></p><% } %>
-        <% if (configured) { %>
+
+    <main class="admin-main auth-main-container">
+      <div class="auth-card-wrapper">
+        <div class="auth-top-accent-line"></div>
+        
+        <div class="auth-brand-badge">
+          <span class="auth-badge-dot"></span>
+          <span>ADMINISTRATION &amp; COMPLIANCE HUB</span>
+        </div>
+
+        <% if (locals.mode === 'verify-otp') { %>
+          <!-- STEP 2: 6-DIGIT EMAIL OTP VERIFICATION SCREEN -->
+          <div class="auth-card-header">
+            <h1>Email <span>Verification.</span></h1>
+            <p class="admin-description">
+              A 6-digit security one-time passcode (OTP) has been dispatched directly to:
+              <br><strong class="highlight-email"><%= locals.pendingEmail || 'your email' %></strong>
+            </p>
+          </div>
+
+          <% if (locals.error) { %>
+            <div class="admin-alert admin-alert-error" role="alert"><%= error %></div>
+          <% } %>
+          <% if (locals.message) { %>
+            <div class="admin-alert admin-alert-success" role="status"><%= message %></div>
+          <% } %>
+
+          <form class="admin-form otp-form" action="/letterhead/verify-otp" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            
+            <div class="auth-input-group">
+              <input
+                type="text"
+                name="otp"
+                inputmode="numeric"
+                pattern="[0-9]{6}"
+                maxlength="6"
+                placeholder="Write your 6-digit OTP code here"
+                class="otp-digit-field"
+                required
+                autofocus
+                autocomplete="one-time-code"
+              >
+            </div>
+
+            <button class="button button-dark button-wide auth-submit-btn" type="submit">
+              <span>Verify OTP &amp; Enter Dashboard</span>
+              <span aria-hidden="true">↗</span>
+            </button>
+          </form>
+
+          <div class="otp-resend-row">
+            <span>Didn't receive code?</span>
+            <form action="/letterhead/resend-otp" method="post" style="display:inline;">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="link-btn-text">Resend Security OTP</button>
+            </form>
+          </div>
+
+          <div class="otp-dev-hint">
+            <small><b>Security Notice:</b> A 6-digit one-time passcode is dispatched directly to your registered administrator email inbox.</small>
+          </div>
+
+        <% } else if (locals.mode === 'forgot-password') { %>
+          <!-- FORGOT PASSWORD: REQUEST RESET CODE -->
+          <div class="auth-card-header">
+            <h1>Forgot <span>Password.</span></h1>
+            <p class="admin-description">
+              Enter your registered administrator email address below. We will dispatch a 6-digit verification code to authenticate your identity and set a new password.
+            </p>
+          </div>
+
+          <% if (locals.error) { %>
+            <div class="admin-alert admin-alert-error" role="alert"><%= error %></div>
+          <% } %>
+          <% if (locals.message) { %>
+            <div class="admin-alert admin-alert-success" role="status"><%= message %></div>
+          <% } %>
+
+          <form class="admin-form" action="/letterhead/forgot-password" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            
+            <div class="auth-input-group">
+              <input
+                type="email"
+                name="email"
+                autocomplete="username"
+                class="form-control auth-single-field"
+                placeholder="Write your official admin email ID here"
+                required
+                autofocus
+                value="<%= locals.values?.email || '' %>"
+              >
+            </div>
+
+            <button class="button button-dark button-wide auth-submit-btn" type="submit">
+              <span>Send Password Reset OTP</span>
+              <span aria-hidden="true">↗</span>
+            </button>
+          </form>
+
+          <div class="auth-aux-row text-center" style="margin-top: 20px; justify-content: center;">
+            <a href="/letterhead/login" class="link-btn-text">← Remembered Password? Sign In</a>
+          </div>
+
+        <% } else if (locals.mode === 'reset-password') { %>
+          <!-- RESET PASSWORD: ENTER OTP & NEW PASSWORD -->
+          <div class="auth-card-header">
+            <h1>Reset <span>Password.</span></h1>
+            <p class="admin-description">
+              A 6-digit verification code has been dispatched to:
+              <br><strong class="highlight-email"><%= locals.pendingEmail || 'your email' %></strong>
+              <br>Enter the code and choose a new password.
+            </p>
+          </div>
+
+          <% if (locals.error) { %>
+            <div class="admin-alert admin-alert-error" role="alert"><%= error %></div>
+          <% } %>
+
+          <form class="admin-form" action="/letterhead/reset-password" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            
+            <div class="auth-input-group">
+              <input
+                type="text"
+                name="otp"
+                inputmode="numeric"
+                maxlength="6"
+                class="form-control auth-single-field font-mono text-center"
+                placeholder="Write 6-digit verification OTP here"
+                required
+                autofocus
+              >
+            </div>
+
+            <div class="auth-input-group">
+              <input
+                type="password"
+                name="newPassword"
+                minlength="8"
+                class="form-control auth-single-field"
+                placeholder="Write your new password here (minimum 8 characters)"
+                required
+              >
+            </div>
+
+            <div class="auth-input-group">
+              <input
+                type="password"
+                name="confirmPassword"
+                minlength="8"
+                class="form-control auth-single-field"
+                placeholder="Confirm your new password here"
+                required
+              >
+            </div>
+
+            <button class="button button-dark button-wide auth-submit-btn" type="submit">
+              <span>Update Password &amp; Sign In</span>
+              <span aria-hidden="true">↗</span>
+            </button>
+          </form>
+
+          <div class="auth-aux-row text-center" style="margin-top: 20px; justify-content: center;">
+            <a href="/letterhead/login" class="link-btn-text">Cancel &amp; Return to Sign In</a>
+          </div>
+
+        <% } else { %>
+          <!-- STEP 1: STANDARD ADMIN SIGN IN SCREEN -->
+          <div class="auth-card-header">
+            <h1>Admin <span>Sign In.</span></h1>
+            <p class="admin-description">
+              Sign in to manage official Letterheads, GST Tax Invoices, and Client Leads.
+            </p>
+          </div>
+
+          <% if (locals.error) { %>
+            <div class="admin-alert admin-alert-error" role="alert"><%= error %></div>
+          <% } %>
+          <% if (locals.message) { %>
+            <div class="admin-alert admin-alert-success" role="status"><%= message %></div>
+          <% } %>
+
           <form class="admin-form" action="/letterhead/login" method="post">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <label>Admin password<input type="password" name="password" autocomplete="current-password" required autofocus></label>
-            <button class="button button-dark" type="submit">Sign in <span aria-hidden="true">↗</span></button>
+            
+            <div class="auth-input-group">
+              <input
+                type="email"
+                name="email"
+                autocomplete="username"
+                class="form-control auth-single-field"
+                placeholder="Write your official admin email ID here"
+                required
+                autofocus
+                value="<%= locals.values?.email || '' %>"
+              >
+            </div>
+
+            <div class="auth-input-group auth-password-group">
+              <input
+                type="password"
+                name="password"
+                autocomplete="current-password"
+                class="form-control auth-single-field"
+                placeholder="Write your administrator password here"
+                required
+              >
+            </div>
+
+            <!-- Perfectly Aligned Helper Row directly below Password Input -->
+            <div class="auth-password-helper-row">
+              <span class="auth-security-pill">
+                <span class="auth-live-dot"></span> Two-Factor Protected
+              </span>
+              <a href="/letterhead/forgot-password" class="forgot-link">
+                <span>Forgot password?</span>
+              </a>
+            </div>
+
+            <button class="button button-dark button-wide auth-submit-btn" type="submit">
+              <span>Sign In &amp; Receive Email OTP</span>
+              <span aria-hidden="true">↗</span>
+            </button>
           </form>
-        <% } else { %>
-          <div class="admin-setup-note"><b>Admin access needs configuration</b><p>Set a private <code>LETTERHEAD_ADMIN_PASSWORD</code> (at least 16 characters) and <code>SESSION_SECRET</code> (at least 32 characters) in your local <code>.env</code>, then restart the website.</p></div>
+
+          <div class="auth-security-badge">
+            <span class="lock-icon">🔒</span>
+            <span>Two-Factor Authentication: A secondary 6-digit OTP is sent directly to your registered administrator email on each sign in.</span>
+          </div>
         <% } %>
-        <a class="admin-home-link" href="/">← Return to Shree Shantinath Enterprises</a>
-      </section>
+
+        <div class="auth-footer-nav">
+          <a class="admin-home-link" href="/">← Return to Shree Shantinath Enterprises Home</a>
+        </div>
+      </div>
     </main>
+    <script src="/js/main.js?v=3" defer></script>
   </body>
 </html>
