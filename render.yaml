@@ -6,28 +6,4 @@ services:
     plan: free
     buildCommand: npm install --include=dev && npm run build
     startCommand: npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: "3000"
-      - key: RESEND_API_KEY
-        value: re_BVBnBw9q_MyvaTJAs4sA6y3VzvyZFTBng
-      - key: EMAIL_FROM
-        value: onboarding@resend.dev
-      - key: CONTACT_EMAIL
-        value: shreeshantinath.enterprises25@gmail.com
-      - key: FIREBASE_API_KEY
-        value: AIzaSyAwTh01aFwrYz-E2MIjkiLgfEW2PzO_H94
-      - key: FIREBASE_AUTH_DOMAIN
-        value: sse-jalore.firebaseapp.com
-      - key: FIREBASE_PROJECT_ID
-        value: sse-jalore
-      - key: FIREBASE_STORAGE_BUCKET
-        value: sse-jalore.firebasestorage.app
-      - key: FIREBASE_MESSAGING_SENDER_ID
-        value: "818092722547"
-      - key: FIREBASE_APP_ID
-        value: "1:818092722547:web:859f55072478a31b491d06"
-      - key: SESSION_SECRET
-        value: uRjeXAm1PaqK0Dhi-p3OV66tOgiRQ2ibEo74hiRAZdLToldBbtL-SXzRGA_s3H4e
+   
