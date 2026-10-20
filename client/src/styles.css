@@ -4338,3 +4338,17 @@ body.dark-mode .safety-section-card h2,
 body.dark-mode .safety-item-card h3 {
   color: #ffffff !important;
 }
+
+/* Dark Mode dropdown styling for React client */
+[data-theme="dark"] .dropdown-glass-menu {
+  background: rgba(14, 23, 38, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6) !important;
+}
+[data-theme="dark"] .dropdown-item {
+  color: #cbd5e1 !important;
+}
+[data-theme="dark"] .dropdown-item:hover {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+}

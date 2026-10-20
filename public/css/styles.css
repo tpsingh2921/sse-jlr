@@ -4759,3 +4759,540 @@ body.dark-mode .safety-item-card h3 {
 [data-theme="dark"] .safety-contact h2 {
   color: #ffffff !important;
 }
+
+
+/* --------------------------------------------------------------------------
+   CLIENT ENQUIRIES EXPORT MODAL & UTILITY
+   -------------------------------------------------------------------------- */
+.export-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #047857;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.export-action-btn:hover {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+}
+
+[data-theme="dark"] .export-action-btn {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(52, 211, 153, 0.35);
+  color: #34d399;
+}
+
+[data-theme="dark"] .export-action-btn:hover {
+  background: #10b981;
+  color: #070a0d;
+}
+
+/* Modal Backdrop */
+.export-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(7, 10, 13, 0.72);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.export-modal-backdrop.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Modal Dialog Box */
+.export-modal-dialog {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(13, 40, 32, 0.12);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  padding: 2rem;
+  transform: translateY(18px) scale(0.98);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.export-modal-backdrop.is-active .export-modal-dialog {
+  transform: translateY(0) scale(1);
+}
+
+[data-theme="dark"] .export-modal-dialog {
+  background: #0e1726;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.75);
+}
+
+/* Modal Header */
+.export-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+[data-theme="dark"] .export-modal-header {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.export-kpi-pill {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  margin-bottom: 0.4rem;
+}
+
+[data-theme="dark"] .export-kpi-pill {
+  background: rgba(16, 185, 129, 0.16);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+.export-modal-header h2 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #0d2820;
+  margin: 0 0 0.3rem 0;
+}
+
+[data-theme="dark"] .export-modal-header h2 {
+  color: #ffffff;
+}
+
+.export-modal-subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+[data-theme="dark"] .export-modal-subtitle {
+  color: #94a3b8;
+}
+
+.export-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.export-modal-close:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Form Groups */
+.export-field-group {
+  margin-bottom: 1.35rem;
+}
+
+.export-field-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #1e293b;
+  margin-bottom: 0.65rem;
+}
+
+[data-theme="dark"] .export-field-label {
+  color: #e2e8f0;
+}
+
+/* Format Radio Cards */
+.export-format-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+.export-format-card {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  margin: 0;
+}
+
+.export-format-card input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.format-card-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.export-format-card input[type="radio"]:checked + .format-card-content {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
+}
+
+[data-theme="dark"] .format-card-content {
+  background: #131f33;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .export-format-card input[type="radio"]:checked + .format-card-content {
+  border-color: #34d399;
+  background: rgba(16, 185, 129, 0.18);
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.25);
+}
+
+.format-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.format-card-content strong {
+  display: block;
+  font-size: 0.88rem;
+  color: #0f172a;
+  margin-bottom: 0.2rem;
+}
+
+[data-theme="dark"] .format-card-content strong {
+  color: #f8fafc;
+}
+
+.format-card-content small {
+  display: block;
+  font-size: 0.73rem;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+[data-theme="dark"] .format-card-content small {
+  color: #94a3b8;
+}
+
+/* Period Pills */
+.export-period-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.export-period-pill {
+  display: inline-flex;
+  position: relative;
+  cursor: pointer;
+  margin: 0;
+}
+
+.export-period-pill input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.export-period-pill span {
+  display: inline-block;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+  transition: all 0.2s ease;
+}
+
+.export-period-pill input[type="radio"]:checked + span {
+  border-color: #10b981;
+  background: #10b981;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.28);
+}
+
+[data-theme="dark"] .export-period-pill span {
+  background: #131f33;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .export-period-pill input[type="radio"]:checked + span {
+  border-color: #34d399;
+  background: #10b981;
+  color: #070a0d;
+}
+
+/* Custom Date Container */
+.custom-date-container {
+  margin-top: 0.85rem;
+  padding: 1rem 1.15rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px dashed #cbd5e1;
+}
+
+[data-theme="dark"] .custom-date-container {
+  background: #131f33;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.custom-date-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+.custom-date-field label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.35rem;
+}
+
+[data-theme="dark"] .custom-date-field label {
+  color: #cbd5e1;
+}
+
+.custom-date-field input[type="date"] {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  background: #ffffff;
+  color: #0f172a;
+  outline: none;
+}
+
+[data-theme="dark"] .custom-date-field input[type="date"] {
+  background: #0b111a;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #f8fafc;
+}
+
+.custom-date-field input[type="date"]:focus {
+  border-color: #10b981;
+}
+
+/* Modal Actions */
+.export-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+[data-theme="dark"] .export-modal-actions {
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.export-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: #0d2820;
+  color: #ffffff;
+  padding: 0.7rem 1.4rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.export-submit-btn:hover {
+  background: #10b981;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .export-submit-btn {
+  background: #10b981;
+  color: #070a0d;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .export-submit-btn:hover {
+  background: #34d399;
+}
+
+/* --------------------------------------------------------------------------
+   DARK MODE ENHANCEMENTS FOR SAFETY ENDPOINTS & DROPDOWN NAV
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] .safety-hero {
+  background: radial-gradient(circle at 20% 20%, rgba(16, 185, 129, 0.08), transparent 45%),
+              radial-gradient(circle at 80% 80%, rgba(56, 189, 248, 0.05), transparent 45%),
+              #070a0d !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .safety-hero-art {
+  background: linear-gradient(180deg, #091a14 0%, #061e17 55%, #04120e 100%) !important;
+  border: 3px solid rgba(52, 211, 153, 0.25) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7) !important;
+}
+
+[data-theme="dark"] .safety-hill-back {
+  background: #0d3224 !important;
+}
+
+[data-theme="dark"] .safety-hill-front {
+  background: #114230 !important;
+}
+
+[data-theme="dark"] .safety-sun {
+  background: radial-gradient(circle, #34d399 0%, #059669 65%, transparent 100%) !important;
+  box-shadow: 0 0 50px rgba(52, 211, 153, 0.45) !important;
+}
+
+[data-theme="dark"] .safety-content {
+  background: #070a0d !important;
+}
+
+[data-theme="dark"] .safety-section {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: transparent !important;
+}
+
+[data-theme="dark"] .safety-items article {
+  background: #0e1726 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4) !important;
+  border-radius: 10px !important;
+  padding: 1.1rem 1.25rem !important;
+}
+
+[data-theme="dark"] .safety-items article:hover {
+  background: #131f33 !important;
+  border-color: rgba(52, 211, 153, 0.35) !important;
+}
+
+[data-theme="dark"] .safety-items h3 {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .safety-items p {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .safety-section-number {
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .safety-section h2 {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .safety-section-intro {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .safety-hero-actions .button.button-dark {
+  background: #10b981 !important;
+  color: #070a0d !important;
+  border-color: #10b981 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="dark"] .safety-hero-actions .button.button-dark:hover {
+  background: #34d399 !important;
+  border-color: #34d399 !important;
+}
+
+[data-theme="dark"] .safety-hero-actions .text-link {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .safety-hero-actions .text-link:hover {
+  color: #34d399 !important;
+}
+
+/* Navbar Safety Dropdown in Dark Mode */
+[data-theme="dark"] .nav-dropdown summary {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .nav-dropdown summary:hover,
+[data-theme="dark"] .nav-dropdown summary[aria-current="page"] {
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .nav-dropdown-menu {
+  background: #0e1726 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme="dark"] .nav-dropdown-menu a {
+  color: #cbd5e1 !important;
+  border-radius: 6px;
+}
+
+[data-theme="dark"] .nav-dropdown-menu a:hover,
+[data-theme="dark"] .nav-dropdown-menu a[aria-current="page"] {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+}
+
+/* Admin Sign Out & View Site Links in Dark Mode */
+[data-theme="dark"] .admin-link-button {
+  color: #f87171 !important;
+  border-bottom: 1px solid rgba(248, 113, 113, 0.45) !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] .admin-link-button:hover {
+  color: #ef4444 !important;
+  border-bottom-color: #ef4444 !important;
+}
+
+[data-theme="dark"] .admin-back-link {
+  color: #94a3b8 !important;
+  transition: color 0.2s ease !important;
+}
+
+[data-theme="dark"] .admin-back-link:hover {
+  color: #34d399 !important;
+}

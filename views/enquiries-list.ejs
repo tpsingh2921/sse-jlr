@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=14">
+    <link rel="stylesheet" href="/css/styles.css?v=20">
     <script>
       (function() {
         if (localStorage.getItem('sse_theme') === 'dark') {
@@ -81,6 +81,9 @@
           </p>
         </div>
         <div class="admin-heading-actions">
+          <button type="button" class="button button-outline export-action-btn" id="openExportModalBtn">
+            <span>📥 Export Enquiries</span>
+          </button>
           <a class="button button-outline" href="/#contact" target="_blank" rel="noopener">
             <span>Test Public Form</span> ↗
           </a>
@@ -225,6 +228,149 @@
           </a>
         </section>
       <% } %>
+    
+      <!-- =========================================================================
+           EXPORT CLIENT ENQUIRIES INTERACTIVE MODAL
+           ========================================================================= -->
+      <div class="export-modal-backdrop" id="exportModal" aria-hidden="true">
+        <div class="export-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="exportModalTitle">
+          <div class="export-modal-header">
+            <div>
+              <span class="export-kpi-pill">DATABASE EXPORT UTILITY</span>
+              <h2 id="exportModalTitle">Export Client Enquiries</h2>
+              <p class="export-modal-subtitle">Download submitted RFQ leads and client requirements to your local storage.</p>
+            </div>
+            <button type="button" class="export-modal-close" id="closeExportModalBtn" aria-label="Close export dialog">&times;</button>
+          </div>
+
+          <form id="exportForm" action="/admin/enquiries/export" method="get">
+            <!-- 1. File Type Selection -->
+            <div class="export-field-group">
+              <label class="export-field-label">1. Select Export File Format:</label>
+              <div class="export-format-grid">
+                <label class="export-format-card">
+                  <input type="radio" name="format" value="csv" checked>
+                  <div class="format-card-content">
+                    <span class="format-icon">📊</span>
+                    <div>
+                      <strong>CSV Spreadsheet (.csv)</strong>
+                      <small>Formatted with all columns for Microsoft Excel, Google Sheets &amp; Numbers</small>
+                    </div>
+                  </div>
+                </label>
+                <label class="export-format-card">
+                  <input type="radio" name="format" value="json">
+                  <div class="format-card-content">
+                    <span class="format-icon">📄</span>
+                    <div>
+                      <strong>JSON Data (.json)</strong>
+                      <small>Complete raw structured database backup with all metadata</small>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- 2. Time Period Selection -->
+            <div class="export-field-group">
+              <label class="export-field-label">2. Select Time Period of Data Required:</label>
+              <div class="export-period-grid">
+                <label class="export-period-pill">
+                  <input type="radio" name="period" value="all" checked>
+                  <span>All Time (Entire Database)</span>
+                </label>
+                <label class="export-period-pill">
+                  <input type="radio" name="period" value="week">
+                  <span>Last Week (7 Days)</span>
+                </label>
+                <label class="export-period-pill">
+                  <input type="radio" name="period" value="month">
+                  <span>Last Month (30 Days)</span>
+                </label>
+                <label class="export-period-pill">
+                  <input type="radio" name="period" value="year">
+                  <span>Last Year (365 Days)</span>
+                </label>
+                <label class="export-period-pill">
+                  <input type="radio" name="period" value="custom" id="periodCustomRadio">
+                  <span>Custom Date Range</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- 3. Custom Date Range Inputs (Revealed when 'custom' is selected) -->
+            <div class="custom-date-container" id="customDateContainer" style="display: none;">
+              <div class="custom-date-grid">
+                <div class="custom-date-field">
+                  <label for="exportStartDate">Start Date (From):</label>
+                  <input type="date" id="exportStartDate" name="startDate" class="form-control">
+                </div>
+                <div class="custom-date-field">
+                  <label for="exportEndDate">End Date (To):</label>
+                  <input type="date" id="exportEndDate" name="endDate" class="form-control">
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal Action Buttons -->
+            <div class="export-modal-actions">
+              <button type="button" class="button button-outline" id="cancelExportBtn">Cancel</button>
+              <button type="submit" class="button button-dark export-submit-btn">
+                <span>Download to Local Storage</span>
+                <span aria-hidden="true">&darr;</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          const modal = document.getElementById('exportModal');
+          const openBtn = document.getElementById('openExportModalBtn');
+          const closeBtn = document.getElementById('closeExportModalBtn');
+          const cancelBtn = document.getElementById('cancelExportBtn');
+          const customContainer = document.getElementById('customDateContainer');
+          const periodRadios = document.querySelectorAll('input[name="period"]');
+
+          function openModal() {
+            modal.classList.add('is-active');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+          }
+
+          function closeModal() {
+            modal.classList.remove('is-active');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+          }
+
+          if (openBtn) openBtn.addEventListener('click', openModal);
+          if (closeBtn) closeBtn.addEventListener('click', closeModal);
+          if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+          modal.addEventListener('click', function(e) {
+            if (e.target === modal) closeModal();
+          });
+
+          document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.classList.contains('is-active')) {
+              closeModal();
+            }
+          });
+
+          periodRadios.forEach(function(radio) {
+            radio.addEventListener('change', function() {
+              if (this.value === 'custom') {
+                customContainer.style.display = 'block';
+              } else {
+                customContainer.style.display = 'none';
+              }
+            });
+          });
+        });
+      </script>
+
     </main>
 
     <script src="/js/letterhead.js" defer></script>

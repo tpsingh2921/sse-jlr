@@ -1433,6 +1433,115 @@ app.get("/admin/enquiries", requireAdmin, async (request, response) => {
   }
 });
 
+// Export Client Enquiries with format and date range filtering
+app.get("/admin/enquiries/export", requireAdmin, async (request, response) => {
+  try {
+    const allEnquiries = await fdb.getEnquiries();
+    const format = (clean(request.query.format) || "csv").toLowerCase();
+    const period = (clean(request.query.period) || "all").toLowerCase();
+    const startDateStr = clean(request.query.startDate);
+    const endDateStr = clean(request.query.endDate);
+
+    const now = Date.now();
+    const filtered = allEnquiries.filter((item) => {
+      if (!item.createdAt) return true;
+      const itemTime = new Date(item.createdAt).getTime();
+      if (Number.isNaN(itemTime)) return true;
+
+      if (period === "week") {
+        return now - itemTime <= 7 * 24 * 60 * 60 * 1000;
+      }
+      if (period === "month") {
+        return now - itemTime <= 30 * 24 * 60 * 60 * 1000;
+      }
+      if (period === "year") {
+        return now - itemTime <= 365 * 24 * 60 * 60 * 1000;
+      }
+      if (period === "custom") {
+        if (startDateStr) {
+          const start = new Date(`${startDateStr}T00:00:00Z`).getTime();
+          if (!Number.isNaN(start) && itemTime < start) return false;
+        }
+        if (endDateStr) {
+          const end = new Date(`${endDateStr}T23:59:59Z`).getTime();
+          if (!Number.isNaN(end) && itemTime > end) return false;
+        }
+        return true;
+      }
+      return true;
+    });
+
+    const timestamp = new Date().toISOString().slice(0, 10);
+
+    if (format === "json") {
+      response.setHeader("Content-Type", "application/json; charset=utf-8");
+      response.setHeader(
+        "Content-Disposition",
+        `attachment; filename="SSE-Client-Enquiries-${period}-${timestamp}.json"`
+      );
+      return response.send(JSON.stringify(filtered, null, 2));
+    }
+
+    // Default: CSV format with UTF-8 BOM for Microsoft Excel
+    const headers = [
+      "Lead ID",
+      "Submission Date (IST)",
+      "Client Name",
+      "Company / Organization",
+      "Email Address",
+      "Phone Number",
+      "Project Category",
+      "Project Location",
+      "Timeline",
+      "Status",
+      "Requirements & Scope Description",
+    ];
+
+    const escapeCsv = (str) => {
+      if (str === null || str === undefined) return '""';
+      const cleanStr = String(str).replace(/"/g, '""');
+      return `"${cleanStr}"`;
+    };
+
+    const csvRows = [
+      headers.join(","),
+      ...filtered.map((e) => {
+        const istDate = e.createdAt
+          ? new Date(e.createdAt).toLocaleString("en-IN", {
+              dateStyle: "medium",
+              timeStyle: "short",
+              timeZone: "Asia/Kolkata",
+            })
+          : "Undated";
+        return [
+          escapeCsv(e.id),
+          escapeCsv(istDate),
+          escapeCsv(e.name),
+          escapeCsv(e.company),
+          escapeCsv(e.email),
+          escapeCsv(e.phone),
+          escapeCsv(e.projectType),
+          escapeCsv(e.location),
+          escapeCsv(e.timeline),
+          escapeCsv(e.status || "New"),
+          escapeCsv(e.requirements),
+        ].join(",");
+      }),
+    ];
+
+    const csvContent = "\uFEFF" + csvRows.join("\r\n");
+    response.setHeader("Content-Type", "text/csv; charset=utf-8");
+    response.setHeader(
+      "Content-Disposition",
+      `attachment; filename="SSE-Client-Enquiries-${period}-${timestamp}.csv"`
+    );
+    return response.send(csvContent);
+  } catch (err) {
+    console.error("Error exporting enquiries:", err);
+    return response.status(500).send("Could not export enquiries.");
+  }
+});
+
 
 app.post(
   "/admin/enquiries/:id/status",
