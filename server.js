@@ -17,8 +17,7 @@ const port = Number(process.env.PORT) || 3000;
 const contactEmail =
   process.env.CONTACT_EMAIL || "shreeshantinath.enterprises25@gmail.com";
 const sessionSecret =
-  process.env.SESSION_SECRET ||
-  "uRjeXAm1PaqK0Dhi-p3OV66tOgiRQ2ibEo74hiRAZdLToldBbtL-SXzRGA_s3H4e";
+  process.env.SESSION_SECRET || "sse-jalore-session-secret-change-in-prod";
 let databaseReady = true;
 let viteServer;
 const safetyDocuments = {
@@ -701,7 +700,7 @@ async function sendAdminOtpEmail({ to, otp, type = "login", name = "Administrato
   console.log(`🔐 [ADMIN ${type.toUpperCase()} OTP]: ${otp} for ${to}`);
   console.log("========================================================\n");
 
-  const resendKey = process.env.RESEND_API_KEY || "re_BVBnBw9q_MyvaTJAs4sA6y3VzvyZFTBng";
+  const resendKey = process.env.RESEND_API_KEY;
   const emailSender = process.env.EMAIL_FROM || "onboarding@resend.dev";
   if (resendKey && emailSender) {
     try {
@@ -767,7 +766,7 @@ async function sendInvoiceEmailToAdmin(invoice, recipientEmail) {
 
     console.log(`\n📧 [INVOICE EMAIL]: Sending PDF for ${safeInvNo} to ${to}`);
 
-    const resendKey = process.env.RESEND_API_KEY || "re_BVBnBw9q_MyvaTJAs4sA6y3VzvyZFTBng";
+    const resendKey = process.env.RESEND_API_KEY;
     const emailSender = process.env.EMAIL_FROM || "onboarding@resend.dev";
     if (resendKey && emailSender) {
       await fetch("https://api.resend.com/emails", {
@@ -1000,7 +999,7 @@ async function sendEnquiryEmail(enquiry) {
     "Reply to this email to contact the client directly.",
   ].join("\n");
 
-  const resendKey = process.env.RESEND_API_KEY || "re_BVBnBw9q_MyvaTJAs4sA6y3VzvyZFTBng";
+  const resendKey = process.env.RESEND_API_KEY;
   const emailSender = process.env.EMAIL_FROM || "onboarding@resend.dev";
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",

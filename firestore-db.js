@@ -17,7 +17,7 @@ const {
 } = require("firebase/firestore");
 
 const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY || "AIzaSyAwTh01aFwrYz-E2MIjkiLgfEW2PzO_H94",
+  apiKey: process.env.FIREBASE_API_KEY,
   authDomain: process.env.FIREBASE_AUTH_DOMAIN || "sse-jalore.firebaseapp.com",
   projectId: process.env.FIREBASE_PROJECT_ID || "sse-jalore",
   storageBucket: process.env.FIREBASE_STORAGE_BUCKET || "sse-jalore.firebasestorage.app",
