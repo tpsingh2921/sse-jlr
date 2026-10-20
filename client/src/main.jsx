@@ -681,9 +681,7 @@ function ProjectScopeEstimator({ onSelectScope }) {
 export default function App() {
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("sse_theme");
-      if (saved) return saved === "dark";
-      return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      return localStorage.getItem("sse_theme") === "dark";
     }
     return false;
   });

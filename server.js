@@ -392,7 +392,22 @@ app.use(
     },
   }),
 );
-app.use(express.static(path.join(__dirname, "public"), { maxAge: "1h" }));
+app.use(
+  express.static(path.join(__dirname, "public"), {
+    maxAge: "1h",
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith(".html")) {
+        res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      } else if (
+        filePath.includes("assets") ||
+        filePath.includes("favicons") ||
+        filePath.includes("images")
+      ) {
+        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      }
+    },
+  })
+);
 app.use((request, response, next) => {
   if (viteServer) {
     return viteServer.middlewares(request, response, next);
@@ -1044,7 +1059,8 @@ app.get("/", async (request, response, next) => {
       return next(error);
     }
   }
-  return response.sendFile(path.join(__dirname, "public", "react", "index.html"));
+    response.set("Cache-Control", "no-cache, no-store, must-revalidate");
+    return response.sendFile(path.join(__dirname, "public", "react", "index.html"));
 });
 
 for (const document of Object.values(safetyDocuments)) {
