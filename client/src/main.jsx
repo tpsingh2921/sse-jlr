@@ -948,7 +948,7 @@ export default function App() {
               <span>Start Project</span>
               <ArrowUpRight size={14} />
             </a>
-            {/* Mobile menu toggle */}
+            {/* Mobile menu toggle (Three Lines) */}
             <button
               type="button"
               className="mobile-menu-trigger"
@@ -958,6 +958,7 @@ export default function App() {
             >
               <span className={`burger-bar ${mobileMenuOpen ? "bar-1-open" : ""}`} />
               <span className={`burger-bar ${mobileMenuOpen ? "bar-2-open" : ""}`} />
+              <span className={`burger-bar ${mobileMenuOpen ? "bar-3-open" : ""}`} />
             </button>
           </div>
         </div>

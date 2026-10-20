@@ -5261,3 +5261,309 @@ body.dark-mode .safety-item-card h3 {
   white-space: nowrap !important;
   text-decoration: none !important;
 }
+
+
+/* ==========================================================================
+   FIX: THREE-LINE NAV BUTTON & MOBILE PHONE PLACEMENT NEAR NAV
+   ========================================================================== */
+.mobile-menu-trigger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid rgba(13, 40, 32, 0.2);
+  background: rgba(13, 40, 32, 0.04);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.burger-bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #0d2820 !important;
+  transition: all 0.25s ease;
+  border-radius: 2px;
+}
+
+[data-theme="dark"] .mobile-menu-trigger {
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .burger-bar {
+  background: #ffffff !important;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5) !important;
+}
+
+.mobile-menu-trigger:hover,
+.mobile-menu-trigger[aria-expanded="true"] {
+  border-color: #10b981 !important;
+  background: rgba(16, 185, 129, 0.15) !important;
+}
+
+.mobile-menu-trigger:hover .burger-bar,
+.mobile-menu-trigger[aria-expanded="true"] .burger-bar {
+  background: #34d399 !important;
+}
+
+/* Three lines animation for 3 spans */
+.bar-1-open {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.bar-2-open {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.bar-3-open {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Static site header 3-line menu toggle */
+.site-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-phone-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #047857;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.nav-phone-pill:hover {
+  background: #10b981;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .nav-phone-pill {
+  background: rgba(16, 185, 129, 0.16) !important;
+  border-color: rgba(52, 211, 153, 0.35) !important;
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .nav-phone-pill:hover {
+  background: #10b981 !important;
+  color: #070a0d !important;
+}
+
+.menu-toggle {
+  width: 40px;
+  height: 40px;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid #dce1d6;
+  background: transparent;
+  border-radius: 6px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.menu-toggle span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #0d2820;
+  transition: all 0.25s ease;
+  border-radius: 2px;
+}
+
+[data-theme="dark"] .menu-toggle {
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .menu-toggle span {
+  background: #ffffff !important;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.4) !important;
+}
+
+.menu-toggle[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.menu-toggle[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.menu-toggle[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+@media (max-width: 900px) {
+  .menu-toggle {
+    display: flex !important;
+  }
+}
+
+/* Phone link placed near nav bar on mobile - KEEP VISIBLE */
+@media (max-width: 768px) {
+  .header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  .header-actions .phone-pill-link {
+    display: inline-flex !important;
+    padding: 6px 9px !important;
+    font-size: 11.5px !important;
+    gap: 5px !important;
+  }
+
+  .header-actions .button.button-accent {
+    display: none !important; /* Hide wide CTA only so phone stays prominent near nav */
+  }
+
+  .mobile-menu-trigger {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-actions .phone-pill-link .phone-num-text {
+    display: inline-block !important;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+
+/* ==========================================================================
+   FIX: LETTERHEAD TABLE - PREVENT DATE & ACTIONS OVERLAPPING (NO SCROLL)
+   ========================================================================== */
+.document-list-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+.document-list-header {
+  display: grid !important;
+  grid-template-columns: 46px 1fr 140px 185px !important;
+  gap: 16px !important;
+  align-items: center !important;
+  padding: 12px 18px !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+}
+
+.modern-doc-row {
+  display: grid !important;
+  grid-template-columns: 46px 1fr 140px 185px !important;
+  gap: 16px !important;
+  align-items: center !important;
+  padding: 16px 18px !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+}
+
+.doc-icon-badge {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+.document-row-info {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.document-row-info h2 {
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  margin: 0 0 4px !important;
+  line-height: 1.35 !important;
+  word-break: break-word !important;
+}
+
+.doc-subject-preview,
+.doc-recipient-preview {
+  font-size: 11.5px !important;
+  margin: 0 0 2px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Clean vertical stacking of date and activity - eliminates any overlap */
+.doc-date-col {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  min-width: 130px !important;
+  width: 140px !important;
+  flex-shrink: 0 !important;
+}
+
+.doc-date-col strong {
+  display: block !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #f1f5f9 !important;
+  white-space: nowrap !important;
+  line-height: 1.2 !important;
+}
+
+.doc-date-col small {
+  display: block !important;
+  font-size: 10.5px !important;
+  color: #94a3b8 !important;
+  white-space: nowrap !important;
+  line-height: 1.2 !important;
+}
+
+/* Dedicated right-aligned actions bar - guaranteed no collision */
+.document-row-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+  width: 185px !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+}
+
+.document-row-actions .action-btn-pill,
+.document-row-actions .admin-danger-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 5px 9px !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+  font-weight: 600 !important;
+  border-radius: 5px !important;
+  white-space: nowrap !important;
+}
