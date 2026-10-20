@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=20">
+    <link rel="stylesheet" href="/css/styles.css?v=21">
     <script>
       (function() {
         if (localStorage.getItem('sse_theme') === 'dark') {
@@ -89,16 +89,83 @@
           </div>
 
           <div class="safety-hero-art" aria-label="Animated Clean Energy Safety Art" role="img">
-            <div class="safety-art-glow"></div>
-            <div class="safety-sun"></div>
-            <div class="safety-hill-back"></div>
-            <div class="safety-hill-front"></div>
-            <div class="windmill windmill-safety">
-              <div class="windmill-rotor"><i></i><i></i><i></i><b></b></div>
+            <!-- Sky Ambient Motes -->
+            <div class="floating-motes-wrap" aria-hidden="true">
+              <span class="mote mote-1"></span>
+              <span class="mote mote-2"></span>
+              <span class="mote mote-3"></span>
+              <span class="mote mote-4"></span>
             </div>
-            <div class="solar-array safety-solar-array">
-              <span></span><span></span><span></span>
+
+            <!-- Glowing Radiant Clean Energy Sun -->
+            <div class="canvas-sun-wrap safety-sun-wrap">
+              <div class="sun-halo"></div>
+              <div class="sun-core"></div>
+              <div class="sun-rays-pulse"></div>
             </div>
+
+            <!-- Contoured Hills Layer Back -->
+            <div class="hills-layer hills-back safety-hills-back"></div>
+
+            <!-- Primary Wind Turbine with Tapered Mast, LED Beacon & Rotating Blades -->
+            <div class="wind-turbine turbine-primary speed-normal safety-turbine-primary">
+              <div class="turbine-tower">
+                <span class="turbine-beacon"></span>
+              </div>
+              <div class="turbine-head">
+                <div class="turbine-hub"></div>
+                <div class="turbine-blades">
+                  <span class="blade blade-1"></span>
+                  <span class="blade blade-2"></span>
+                  <span class="blade blade-3"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Secondary Distant Wind Turbine for True Horizon Field Depth -->
+            <div class="wind-turbine turbine-secondary speed-normal safety-turbine-secondary">
+              <div class="turbine-tower">
+                <span class="turbine-beacon"></span>
+              </div>
+              <div class="turbine-head">
+                <div class="turbine-hub"></div>
+                <div class="turbine-blades">
+                  <span class="blade blade-1"></span>
+                  <span class="blade blade-2"></span>
+                  <span class="blade blade-3"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contoured Hills Layer Front -->
+            <div class="hills-layer hills-front safety-hills-front"></div>
+
+            <!-- 3D Angled Solar PV Array Tables with Reflective Sheen Sweeps -->
+            <div class="solar-pv-farm safety-solar-farm">
+              <div class="solar-table table-1">
+                <div class="solar-cells-grid">
+                  <span class="cell"></span><span class="cell"></span>
+                  <span class="cell"></span><span class="cell"></span>
+                </div>
+                <div class="solar-sheen-sweep"></div>
+              </div>
+              <div class="solar-table table-2">
+                <div class="solar-cells-grid">
+                  <span class="cell"></span><span class="cell"></span>
+                  <span class="cell"></span><span class="cell"></span>
+                </div>
+                <div class="solar-sheen-sweep"></div>
+              </div>
+              <div class="solar-table table-3">
+                <div class="solar-cells-grid">
+                  <span class="cell"></span><span class="cell"></span>
+                  <span class="cell"></span><span class="cell"></span>
+                </div>
+                <div class="solar-sheen-sweep"></div>
+              </div>
+            </div>
+
+            <!-- Floating Verified Safety Protocol Badge -->
             <div class="safety-badge-floating">
               <span class="safety-badge-icon">🛡️</span>
               <div>

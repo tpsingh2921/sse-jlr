@@ -5296,3 +5296,632 @@ body.dark-mode .safety-item-card h3 {
 [data-theme="dark"] .admin-back-link:hover {
   color: #34d399 !important;
 }
+
+
+/* ==========================================================================
+   ENHANCED CLEAN ENERGY WINDMILL & SOLAR ART FOR SAFETY HERO (MATCHES HOME)
+   ========================================================================== */
+.safety-hero-art {
+  min-height: 440px;
+  height: 440px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 44% 44% 16px 16px;
+  background: linear-gradient(180deg, #d8ead2 0%, #f7e6b5 55%, #dfb559 100%);
+  border: 3px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 24px 60px rgba(7, 26, 20, 0.16);
+}
+
+[data-theme="dark"] .safety-hero-art {
+  background: linear-gradient(180deg, #091a14 0%, #061e17 55%, #04120e 100%) !important;
+  border: 3px solid rgba(52, 211, 153, 0.28) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75) !important;
+}
+
+/* Glowing Sun with Pulsing Halo */
+.canvas-sun-wrap.safety-sun-wrap {
+  position: absolute;
+  top: 45px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140px;
+  height: 140px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.canvas-sun-wrap .sun-halo {
+  position: absolute;
+  inset: -22px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.35) 0%, rgba(251, 191, 36, 0) 70%);
+  filter: blur(14px);
+  animation: halo-pulse 4.5s ease-in-out infinite;
+}
+
+.canvas-sun-wrap .sun-core {
+  position: absolute;
+  inset: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fffbeb 0%, #fde68a 35%, #f59e0b 80%, #d97706 100%);
+  box-shadow: 0 0 45px rgba(245, 158, 11, 0.65);
+}
+
+.canvas-sun-wrap .sun-rays-pulse {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1px dashed rgba(245, 158, 11, 0.4);
+  animation: sun-spin-slow 24s linear infinite;
+}
+
+@keyframes sun-spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes halo-pulse {
+  0%, 100% { transform: scale(0.95); opacity: 0.65; }
+  50% { transform: scale(1.08); opacity: 0.95; }
+}
+
+[data-theme="dark"] .canvas-sun-wrap .sun-halo {
+  background: radial-gradient(circle, rgba(52, 211, 153, 0.4) 0%, rgba(52, 211, 153, 0) 70%) !important;
+}
+
+[data-theme="dark"] .canvas-sun-wrap .sun-core {
+  background: radial-gradient(circle, #ecfdf5 0%, #6ee7b7 35%, #10b981 80%, #059669 100%) !important;
+  box-shadow: 0 0 50px rgba(52, 211, 153, 0.6) !important;
+}
+
+[data-theme="dark"] .canvas-sun-wrap .sun-rays-pulse {
+  border-color: rgba(52, 211, 153, 0.35) !important;
+}
+
+/* Floating Clean Energy Particle Motes */
+.floating-motes-wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.mote {
+  position: absolute;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 8px #34d399;
+  opacity: 0.7;
+}
+
+.mote-1 { width: 4px; height: 4px; top: 28%; left: 22%; animation: float-mote 5s ease-in-out infinite; }
+.mote-2 { width: 3px; height: 3px; top: 40%; left: 80%; animation: float-mote 6s ease-in-out infinite 1s; }
+.mote-3 { width: 5px; height: 5px; top: 18%; left: 72%; animation: float-mote 7s ease-in-out infinite 2s; }
+.mote-4 { width: 3px; height: 3px; top: 52%; left: 35%; animation: float-mote 5.5s ease-in-out infinite 1.5s; }
+
+@keyframes float-mote {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+  50% { transform: translateY(-16px) translateX(8px); opacity: 0.85; }
+}
+
+/* Contoured Landscape Hills */
+.hills-back.safety-hills-back {
+  position: absolute;
+  left: -12%;
+  width: 128%;
+  height: 200px;
+  bottom: 80px;
+  background: #8aa475;
+  border-radius: 50% 50% 0 0 / 40% 40% 0 0;
+  transform: rotate(-4deg);
+  z-index: 3;
+}
+
+.hills-front.safety-hills-front {
+  position: absolute;
+  left: -10%;
+  width: 125%;
+  height: 165px;
+  bottom: -22px;
+  background: #4a6d51;
+  border-radius: 50% 50% 0 0 / 40% 40% 0 0;
+  transform: rotate(4deg);
+  z-index: 5;
+}
+
+[data-theme="dark"] .hills-back.safety-hills-back {
+  background: #0d3224 !important;
+}
+
+[data-theme="dark"] .hills-front.safety-hills-front {
+  background: #114230 !important;
+}
+
+/* Precision Wind Turbines (Tapered Tower, LED Beacon & Aerodynamic Blades) */
+.wind-turbine {
+  position: absolute;
+  z-index: 4;
+}
+
+.safety-turbine-primary {
+  left: 64%;
+  bottom: 125px;
+  z-index: 4;
+}
+
+.safety-turbine-secondary {
+  left: 36%;
+  bottom: 145px;
+  transform: scale(0.65);
+  z-index: 3;
+  opacity: 0.9;
+}
+
+.turbine-tower {
+  width: 5px;
+  height: 155px;
+  background: linear-gradient(90deg, #ffffff 0%, #d8e4da 50%, #b2c5b7 100%);
+  border-radius: 2px 2px 0 0;
+  position: relative;
+  box-shadow: 2px 2px 8px rgba(7, 26, 20, 0.25);
+}
+
+.turbine-beacon {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background: #ef4444;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #ef4444;
+  animation: beacon-blink 1.4s infinite;
+}
+
+@keyframes beacon-blink {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+.turbine-head {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.turbine-hub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+  z-index: 2;
+}
+
+.turbine-blades {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150px;
+  height: 150px;
+  transform: translate(-50%, -50%);
+  animation: turbine-rotate 8s linear infinite;
+}
+
+.blade {
+  position: absolute;
+  bottom: 50%;
+  left: calc(50% - 2.5px);
+  width: 5px;
+  height: 75px;
+  background: linear-gradient(180deg, #ffffff 0%, #e2ece3 100%);
+  border-radius: 50% 50% 15% 15%;
+  transform-origin: 50% 100%;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.blade-1 { transform: rotate(0deg); }
+.blade-2 { transform: rotate(120deg); }
+.blade-3 { transform: rotate(240deg); }
+
+@keyframes turbine-rotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* 3D Angled Solar PV Arrays with Reflective Light Gleam */
+.solar-pv-farm.safety-solar-farm {
+  position: absolute;
+  bottom: 30px;
+  left: 8%;
+  z-index: 6;
+  display: flex;
+  gap: 10px;
+  transform: perspective(280px) rotateX(20deg) rotate(-4deg);
+}
+
+.solar-table {
+  position: relative;
+  width: 64px;
+  height: 68px;
+  background: linear-gradient(135deg, #1e3a47 0%, #0d222b 100%);
+  border: 2px solid #e0dfc8;
+  border-radius: 4px;
+  box-shadow: 4px 8px 16px rgba(7, 26, 20, 0.35);
+  overflow: hidden;
+}
+
+.solar-cells-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+  height: 100%;
+  padding: 3px;
+  background: #112832;
+}
+
+.cell {
+  background: linear-gradient(135deg, #2a4c5b 0%, #152932 100%);
+  border-radius: 1px;
+}
+
+.solar-sheen-sweep {
+  position: absolute;
+  inset: -100%;
+  background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.6) 50%, transparent 60%);
+  animation: solar-sheen 5s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.table-2 .solar-sheen-sweep { animation-delay: 1.2s; }
+.table-3 .solar-sheen-sweep { animation-delay: 2.4s; }
+
+@keyframes solar-sheen {
+  0% { transform: translateX(-100%) translateY(-100%); }
+  40%, 100% { transform: translateX(100%) translateY(100%); }
+}
+
+/* Floating Safety Protocol Badge */
+.safety-badge-floating {
+  position: absolute;
+  z-index: 10;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(13, 40, 32, 0.14);
+  border-radius: 12px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.safety-badge-floating strong {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0d2820 !important;
+  margin-bottom: 2px;
+}
+
+.safety-badge-floating small {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #047857 !important;
+}
+
+[data-theme="dark"] .safety-badge-floating {
+  background: rgba(14, 23, 38, 0.9) !important;
+  border-color: rgba(52, 211, 153, 0.35) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme="dark"] .safety-badge-floating strong {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .safety-badge-floating small {
+  color: #34d399 !important;
+}
+
+
+/* ==========================================================================
+   SCREENSHOT 3 FIX: CLIENT ENQUIRIES STATUS BADGE & DROPDOWN PILL
+   ========================================================================== */
+.status-badge-form {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 9999px !important;
+  padding: 3px 10px 3px 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.status-dropdown-select {
+  border: none !important;
+  background: transparent !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  width: auto !important;
+  min-height: auto !important;
+}
+
+[data-theme="dark"] .status-badge-form {
+  background: #111a24 !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+}
+
+[data-theme="dark"] .status-badge-form:hover {
+  border-color: rgba(52, 211, 153, 0.45) !important;
+}
+
+[data-theme="dark"] .status-dropdown-select {
+  background: transparent !important;
+  border: none !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .status-dropdown-select option {
+  background: #0e1726 !important;
+  color: #ffffff !important;
+}
+
+
+/* ==========================================================================
+   SCREENSHOT 4 FIX: TABLE ACTIONS ROW INLINE ALIGNMENT (NO WRAPPING)
+   ========================================================================== */
+.inv-col-actions,
+.document-row-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+}
+
+.inv-col-actions form,
+.document-row-actions form {
+  display: inline-flex !important;
+  margin: 0 !important;
+}
+
+.inv-col-actions .action-btn-pill,
+.document-row-actions .action-btn-pill,
+.inv-col-actions .admin-danger-button,
+.document-row-actions .admin-danger-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 4px 8px !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+  font-weight: 600 !important;
+  border-radius: 5px !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+}
+
+.invoice-table-wrap,
+.document-list-card {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.invoice-table-header,
+.invoice-item-row {
+  min-width: 860px !important;
+}
+
+
+/* ==========================================================================
+   SCREENSHOT 5 FIX: HIGH CONTRAST DROPDOWN IN DARK THEME
+   ========================================================================== */
+[data-theme="dark"] .dropdown-glass-menu {
+  background: rgba(14, 23, 38, 0.98) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8) !important;
+}
+
+[data-theme="dark"] .dropdown-link {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .dropdown-link:hover {
+  background: rgba(16, 185, 129, 0.16) !important;
+}
+
+[data-theme="dark"] .dropdown-link strong {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="dark"] .dropdown-link small {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .dropdown-link svg {
+  color: #34d399 !important;
+}
+
+
+/* ==========================================================================
+   MOBILE NAVBAR "THREE LINES" & DRAWER IN DARK THEME
+   ========================================================================== */
+[data-theme="dark"] .site-header {
+  background: rgba(7, 10, 13, 0.96) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .menu-toggle {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+[data-theme="dark"] .menu-toggle span {
+  background: #ffffff !important;
+}
+
+[data-theme="dark"] .primary-nav {
+  background: #0b111a !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8) !important;
+}
+
+[data-theme="dark"] .primary-nav > a:not(.nav-cta) {
+  color: #f1f5f9 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .primary-nav > a:not(.nav-cta):hover {
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .primary-nav details.nav-dropdown summary {
+  color: #f1f5f9 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .primary-nav .nav-dropdown-menu {
+  background: #111a24 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-theme="dark"] .primary-nav .nav-dropdown-menu a {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .primary-nav .nav-dropdown-menu a:hover {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+}
+
+/* React Home Mobile Drawer in Dark Mode */
+[data-theme="dark"] .mobile-nav-drawer {
+  background: rgba(10, 16, 26, 0.98) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8) !important;
+}
+
+[data-theme="dark"] .mobile-drawer-inner > a {
+  color: #f1f5f9 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .mobile-drawer-inner > a:hover {
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .mobile-drawer-sub {
+  background: rgba(16, 185, 129, 0.1) !important;
+  border: 1px solid rgba(52, 211, 153, 0.2) !important;
+}
+
+[data-theme="dark"] .mobile-drawer-sub .sub-header {
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .mobile-drawer-sub a {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .mobile-drawer-sub a:hover {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .mobile-call-link {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(52, 211, 153, 0.3) !important;
+}
+
+[data-theme="dark"] .mobile-menu-btn {
+  color: #ffffff !important;
+}
+
+
+/* ==========================================================================
+   CROSS-DEVICE RESPONSIVENESS ENHANCEMENTS (TABLET & MOBILE)
+   ========================================================================== */
+@media (max-width: 900px) {
+  .safety-hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 36px !important;
+  }
+
+  .safety-hero-inner {
+    text-align: center !important;
+  }
+
+  .safety-hero-inner .eyebrow {
+    justify-content: center !important;
+  }
+
+  .safety-breadcrumb {
+    justify-content: center !important;
+  }
+
+  .safety-hero-actions {
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+  }
+
+  .safety-trust-pill {
+    margin: 1.25rem auto 0 !important;
+    max-width: 90% !important;
+    text-align: left !important;
+  }
+
+  .safety-hero-art {
+    max-width: 400px !important;
+    height: 350px !important;
+    min-height: 350px !important;
+    margin: 0 auto !important;
+  }
+
+  .safety-content {
+    grid-template-columns: 1fr !important;
+    gap: 36px !important;
+    padding-block: 40px 60px !important;
+  }
+
+  .safety-sidebar {
+    position: static !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 24px;
+  }
+
+  .admin-page-heading {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px !important;
+  }
+
+  .admin-heading-actions {
+    width: 100% !important;
+    flex-wrap: wrap !important;
+  }
+
+  .admin-top-tabs {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+  }
+}
