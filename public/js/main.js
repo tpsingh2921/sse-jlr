@@ -87,7 +87,7 @@ if (form) {
 // Theme Toggle Logic
 (function initTheme() {
   const current = localStorage.getItem("sse_theme");
-  const isDark = current === "dark" || (!current && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const isDark = current === "dark";
   if (isDark) {
     document.documentElement.setAttribute("data-theme", "dark");
     document.body && document.body.classList.add("dark-mode");
