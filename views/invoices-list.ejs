@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=29">
+    <link rel="stylesheet" href="/css/styles.css?v=30">
     <script>
       (function() {
         if (localStorage.getItem('sse_theme') === 'dark') {
@@ -47,23 +47,56 @@
           </a>
         </nav>
 
-        <div class="admin-header-actions">
+                <div class="admin-header-actions">
           <button type="button" class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle dark mode theme" title="Toggle gradient dark theme">
             <span class="sun-icon" style="display:none;">☀️</span>
             <span class="moon-icon">🌙</span>
             <span class="theme-toggle-label">Dark</span>
           </button>
           <% if (locals.adminUser) { %>
-            <div class="admin-user-pill">
+            <div class="admin-user-pill desktop-only-user-pill">
               <span class="user-status-dot"></span>
               <span><%= adminUser.name %></span>
             </div>
           <% } %>
-          <a class="admin-back-link" href="/" target="_blank">View Site ↗</a>
-          <form action="/letterhead/logout" method="post" style="margin:0;">
+          <a class="admin-back-link desktop-only-link" href="/" target="_blank">View Site ↗</a>
+          <form action="/letterhead/logout" method="post" class="desktop-only-logout-form" style="margin:0;">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <button class="admin-link-button" type="submit">Sign out</button>
           </form>
+
+          <!-- Mobile Profile Trigger & Popover Menu -->
+          <div class="admin-mobile-profile-wrap">
+            <button type="button" class="mobile-profile-trigger" id="mobileProfileTrigger" aria-label="Toggle user menu" aria-expanded="false">
+              <span class="profile-avatar-circle">
+                <%= (locals.adminUser && adminUser.name) ? adminUser.name.charAt(0).toUpperCase() : 'H' %>
+              </span>
+              <span class="profile-online-badge"></span>
+            </button>
+
+            <div class="mobile-profile-dropdown" id="mobileProfileDropdown" role="menu">
+              <div class="dropdown-user-header">
+                <div class="dropdown-avatar">
+                  <%= (locals.adminUser && adminUser.name) ? adminUser.name.charAt(0).toUpperCase() : 'H' %>
+                </div>
+                <div class="dropdown-user-meta">
+                  <strong class="dropdown-user-name"><%= locals.adminUser ? adminUser.name : 'Harshvardhan Singh' %></strong>
+                  <span class="dropdown-user-role">Online • Master Admin</span>
+                </div>
+              </div>
+              <div class="dropdown-divider"></div>
+              <a href="/" target="_blank" class="dropdown-menu-item" role="menuitem">
+                <span>View Public Site</span> ↗
+              </a>
+              <div class="dropdown-divider"></div>
+              <form action="/letterhead/logout" method="post" class="dropdown-logout-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="dropdown-menu-item dropdown-logout-btn" role="menuitem">
+                  <span>Sign out</span> 🚪
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
     </header>
@@ -191,6 +224,6 @@
       <% } %>
     </main>
     <script src="/js/letterhead.js" defer></script>
-    <script src="/js/main.js?v=3" defer></script>
+    <script src="/js/main.js?v=5" defer></script>
   </body>
 </html>

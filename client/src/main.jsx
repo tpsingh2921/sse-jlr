@@ -1424,7 +1424,7 @@ export default function App() {
                   </div>
                   <div className="tile-info">
                     <small>OPERATIONAL HEADQUARTERS</small>
-                    <strong>Rajasthan, India</strong>
+                    <strong>Jalore, Rajasthan, India</strong>
                     <span className="coverage-pill">Serving Solar &amp; Wind Facilities Pan-India</span>
                   </div>
                 </div>

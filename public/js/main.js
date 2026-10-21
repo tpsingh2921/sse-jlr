@@ -121,3 +121,41 @@ if (form) {
     });
   }
 })();
+
+
+// Mobile Admin Profile Dropdown
+(function initMobileProfile() {
+  function setup() {
+    const profileTrigger = document.querySelector("#mobileProfileTrigger");
+    const profileDropdown = document.querySelector("#mobileProfileDropdown");
+
+    if (profileTrigger && profileDropdown) {
+      profileTrigger.addEventListener("click", function(e) {
+        e.stopPropagation();
+        const isOpen = profileDropdown.classList.contains("is-open");
+        profileDropdown.classList.toggle("is-open", !isOpen);
+        profileTrigger.setAttribute("aria-expanded", String(!isOpen));
+      });
+
+      document.addEventListener("click", function(e) {
+        if (!profileDropdown.contains(e.target) && !profileTrigger.contains(e.target)) {
+          profileDropdown.classList.remove("is-open");
+          profileTrigger.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") {
+          profileDropdown.classList.remove("is-open");
+          profileTrigger.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setup);
+  } else {
+    setup();
+  }
+})();
