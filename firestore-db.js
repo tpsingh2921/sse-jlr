@@ -73,7 +73,9 @@ async function saveEnquiry(data) {
     location: data.location || "",
     timeline: data.timeline || "",
     requirements: data.requirements || "",
-    createdAt: new Date().toISOString(),
+    status: data.status || "New",
+    source: data.source || "Website Form",
+    createdAt: data.createdAt || new Date().toISOString(),
   };
 
   if (adminDb) {

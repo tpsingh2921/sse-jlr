@@ -1440,6 +1440,8 @@ app.get("/admin/enquiries", requireAdmin, async (request, response) => {
       csrfToken,
       deleted: request.query.deleted === "1",
       statusUpdated: request.query.statusUpdated === "1",
+      created: request.query.created === "1",
+      error: request.query.error || null,
       adminUser: request.session?.adminUser || null,
       pageTitle: "Client Enquiries",
     });
@@ -1558,6 +1560,44 @@ app.get("/admin/enquiries/export", requireAdmin, async (request, response) => {
   }
 });
 
+
+app.post(
+  "/admin/enquiries/new",
+  requireAdmin,
+  requireCsrf,
+  async (request, response) => {
+    try {
+      const name = clean(request.body.name);
+      if (!name) {
+        return response.redirect(
+          "/admin/enquiries?error=" + encodeURIComponent("Client or contact name is required.")
+        );
+      }
+
+      const leadData = {
+        name,
+        company: clean(request.body.company) || "",
+        email: clean(request.body.email) || "",
+        phone: clean(request.body.phone) || "",
+        projectType: clean(request.body.projectType) || "",
+        location: clean(request.body.location) || "",
+        timeline: clean(request.body.timeline) || "",
+        requirements: clean(request.body.requirements) || "",
+        status: clean(request.body.status) || "New",
+        source: clean(request.body.source) || "Manual Admin Entry",
+        createdAt: new Date().toISOString(),
+      };
+
+      await fdb.saveEnquiry(leadData);
+      return response.redirect("/admin/enquiries?created=1");
+    } catch (err) {
+      console.error("Could not create client lead manually:", err);
+      return response.redirect(
+        "/admin/enquiries?error=" + encodeURIComponent("Could not save client lead. Please try again.")
+      );
+    }
+  },
+);
 
 app.post(
   "/admin/enquiries/:id/status",
