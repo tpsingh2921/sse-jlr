@@ -7240,40 +7240,13 @@ body.dark-mode .inv-metric-val.font-mono {
     display: none !important;
   }
 
-  .admin-header-actions .admin-user-pill {
-    padding: 4px 8px !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    max-width: 140px !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 5px !important;
-  }
-
-  .admin-header-actions .admin-back-link {
+  .admin-header-actions .admin-user-pill,
+  .admin-header-actions .desktop-only-user-pill,
+  .admin-header-actions .admin-back-link,
+  .admin-header-actions .desktop-only-link,
+  .admin-header-actions .desktop-only-logout-form,
+  .admin-header-actions form.desktop-only-logout-form {
     display: none !important;
-  }
-
-  .admin-header-actions form {
-    margin: 0 !important;
-    flex-shrink: 0 !important;
-  }
-
-  .admin-header-actions .admin-link-button {
-    font-size: 11px !important;
-    padding: 5px 9px !important;
-    background: rgba(239, 68, 68, 0.14) !important;
-    color: #ef4444 !important;
-    border-radius: 6px !important;
-    border: 1px solid rgba(239, 68, 68, 0.3) !important;
-    font-weight: 700 !important;
-    white-space: nowrap !important;
-    display: inline-block !important;
-    cursor: pointer !important;
-    flex-shrink: 0 !important;
   }
 
   /* Row 2: THE 3 NAVIGATION OPTIONS (Letterheads, Tax Invoices, Client Enquiries) */
@@ -8196,25 +8169,34 @@ body.dark-mode .inv-firm-name {
   position: relative;
 }
 
-@media (min-width: 769px) {
+@media (min-width: 901px) {
   .admin-mobile-profile-wrap {
     display: none !important;
   }
-  .desktop-only-user-pill {
+  .desktop-only-user-pill,
+  .admin-header-actions .admin-user-pill {
     display: inline-flex !important;
   }
-  .desktop-only-link {
+  .desktop-only-link,
+  .admin-header-actions .admin-back-link {
     display: inline-flex !important;
   }
-  .desktop-only-logout-form {
+  .desktop-only-logout-form,
+  .admin-header-actions .desktop-only-logout-form {
     display: inline-flex !important;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .desktop-only-user-pill,
+  .admin-user-pill,
+  .admin-header-actions .admin-user-pill,
+  .admin-header-actions .desktop-only-user-pill,
   .desktop-only-link,
-  .desktop-only-logout-form {
+  .admin-header-actions .admin-back-link,
+  .admin-header-actions .desktop-only-link,
+  .desktop-only-logout-form,
+  .admin-header-actions .desktop-only-logout-form {
     display: none !important;
   }
 
