@@ -8492,20 +8492,29 @@ body.dark-mode .client-source-pill {
 
 
 /* --------------------------------------------------------------------------
-   12. FOOTER CLEARANCE & CENTERED BACK TO TOP (NO OVERLAP WITH DOCK)
+   12. FOOTER CLEARANCE & LEFT-POSITIONED BACK TO TOP (ZERO OVERLAP WITH DOCK)
    -------------------------------------------------------------------------- */
-@media (max-width: 768px) {
+@media (min-width: 901px) {
+  .footer-bottom-bar {
+    padding-right: 250px !important;
+  }
+}
+
+@media (max-width: 900px) {
   .modern-footer {
     padding-block: 56px 95px !important;
   }
   .footer-bottom-bar {
+    padding-right: 0 !important;
     flex-direction: column !important;
     align-items: center !important;
     text-align: center !important;
-    gap: 12px !important;
+    gap: 14px !important;
+    padding-bottom: 16px !important;
   }
-  .footer-back-to-top-row {
-    margin-top: 28px !important;
-    margin-bottom: 20px !important;
+  .footer-bottom-left {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
   }
 }
