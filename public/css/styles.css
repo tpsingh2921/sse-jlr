@@ -548,8 +548,6 @@ h1, h2, h3 { font-family: var(--serif); }
 .preview-print-note { margin: 11px 0 0; color: #778175; font-size: 8px; line-height: 1.6; }
 
 @media (max-width: 1000px) {
-  .document-row { grid-template-columns: 39px 1fr; }
-  .document-row-actions { grid-column: 2; flex-wrap: wrap; }
   .editor-workspace { grid-template-columns: 1fr; }
   .letterhead-preview { position: static; }
   .letterhead-preview-frame { max-width: 620px; margin-inline: auto; }
@@ -563,10 +561,7 @@ h1, h2, h3 { font-family: var(--serif); }
   .admin-page-heading > .button, .admin-heading-actions { margin-top: 20px; }
   .admin-heading-actions { flex-wrap: wrap; }
   .admin-heading-actions .button { flex: 1; }
-  .document-row { gap: 12px; padding-block: 16px; }
-  .document-row-actions { gap: 12px; }
-  .document-row-info h2 { font-size: 12px; overflow-wrap: anywhere; }
-  .document-row-actions a, .admin-danger-button { font-size: 8px; }
+
   .letterhead-editor-form { padding: 20px 15px; }
   .letterhead-preview { padding: 16px 12px; }
   .editor-meta-grid { grid-template-columns: 1fr; }
@@ -7731,3 +7726,463 @@ main,
   box-sizing: border-box !important;
 }
 
+
+
+/* --------------------------------------------------------------------------
+   9. CIVIL SCOPE CALCULATOR TILES RESPONSIVENESS, LETTERHEAD ACTIONS ALIGNMENT,
+      AND AUTHENTIC REAL TAX INVOICE PREVIEW
+   -------------------------------------------------------------------------- */
+
+/* --- A. INTERACTIVE CIVIL SCOPE CALCULATOR TILES RESPONSIVENESS --- */
+.estimator-section {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.estimator-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+@media (max-width: 768px) {
+  .estimator-container {
+    padding: clamp(16px, 4vw, 24px) 14px !important;
+    border-radius: 16px !important;
+  }
+
+  .estimator-header {
+    margin-bottom: 22px !important;
+  }
+
+  .estimator-header h2 {
+    font-size: clamp(20px, 4.8vw, 26px) !important;
+    line-height: 1.25 !important;
+    margin: 8px 0 !important;
+  }
+
+  .estimator-header p {
+    font-size: 12.5px !important;
+    line-height: 1.55 !important;
+    color: #a7c4b8 !important;
+  }
+
+  .estimator-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+    width: 100% !important;
+  }
+
+  .config-block {
+    margin-bottom: 20px !important;
+  }
+
+  .config-label {
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    margin-bottom: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  .config-label .step-num {
+    font-size: 10px !important;
+    padding: 2px 7px !important;
+    border-radius: 4px !important;
+  }
+
+  /* 2-Column Responsive Tiles Inside Step 1 & Step 2 */
+  .chips-grid.chips-2x2 {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .chip-card {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 10px 10px !important;
+    border-radius: 10px !important;
+    min-height: 54px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    text-align: left !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .chip-card.is-selected {
+    background: rgba(16, 185, 129, 0.2) !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.3) !important;
+  }
+
+  .chip-icon {
+    width: 18px !important;
+    height: 18px !important;
+    flex-shrink: 0 !important;
+    color: #34d399 !important;
+  }
+
+  .chip-text {
+    min-width: 0 !important;
+    flex: 1 1 0 !important;
+    overflow: hidden !important;
+  }
+
+  .chip-text strong {
+    font-size: clamp(11px, 2.8vw, 12.5px) !important;
+    font-weight: 700 !important;
+    line-height: 1.25 !important;
+    color: #ffffff !important;
+    display: block !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+
+  .chip-text small {
+    font-size: 9.5px !important;
+    line-height: 1.2 !important;
+    color: #9cbdb0 !important;
+    display: block !important;
+    margin-top: 2px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+
+  /* 3-Column Responsive Capacity Chips in 1 Neat Row */
+  .chips-grid.chips-3col {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .chip-scale {
+    padding: 10px 4px !important;
+    min-height: 42px !important;
+    justify-content: center !important;
+    text-align: center !important;
+    border-radius: 8px !important;
+  }
+
+  .chip-scale strong {
+    font-size: clamp(10.5px, 2.7vw, 12px) !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+  }
+
+  /* Mobilization Spec Results Tile */
+  .estimator-summary-card {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 18px 14px !important;
+    border-radius: 14px !important;
+    margin-top: 6px !important;
+  }
+
+  .summary-top h3 {
+    font-size: 17px !important;
+    margin: 6px 0 2px !important;
+  }
+
+  .summary-scope-title {
+    font-size: 13px !important;
+    color: #34d399 !important;
+    margin-bottom: 14px !important;
+  }
+
+  .summary-metrics {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-bottom: 14px !important;
+  }
+
+  .metric-box {
+    padding: 10px 8px !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    background: rgba(0, 0, 0, 0.25) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .metric-box .metric-icon {
+    width: 16px !important;
+    height: 16px !important;
+    color: #34d399 !important;
+    flex-shrink: 0 !important;
+  }
+
+  .metric-box small {
+    font-size: 8px !important;
+    letter-spacing: 0.5px !important;
+    color: #9cbdb0 !important;
+    display: block !important;
+    line-height: 1.2 !important;
+  }
+
+  .metric-box strong {
+    font-size: 11.5px !important;
+    color: #ffffff !important;
+    white-space: nowrap !important;
+    display: block !important;
+    margin-top: 1px !important;
+  }
+
+  .summary-deliverables {
+    padding: 12px 0 0 !important;
+    margin-top: 10px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .summary-deliverables h4 {
+    font-size: 12px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .summary-deliverables ul {
+    gap: 6px !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .summary-deliverables ul li {
+    font-size: 11.5px !important;
+    gap: 7px !important;
+    line-height: 1.35 !important;
+  }
+
+  .summary-cta-btn {
+    width: 100% !important;
+    padding: 12px 14px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    justify-content: center !important;
+    margin-top: 14px !important;
+  }
+}
+
+/* --- B. LETTERHEAD TABLE: STRICT ACTIONS COLUMN ALIGNMENT --- */
+.document-list-header {
+  display: grid !important;
+  grid-template-columns: 44px 280px 140px 180px !important;
+  gap: 16px !important;
+  align-items: center !important;
+  padding: 12px 18px !important;
+  box-sizing: border-box !important;
+  min-width: 680px !important;
+}
+
+.modern-doc-row,
+.document-row {
+  display: grid !important;
+  grid-template-columns: 44px 280px 140px 180px !important;
+  gap: 16px !important;
+  align-items: center !important;
+  padding: 14px 18px !important;
+  box-sizing: border-box !important;
+  min-width: 680px !important;
+  width: max-content !important;
+}
+
+.doc-icon-badge {
+  grid-column: 1 !important;
+}
+
+.document-row-info {
+  grid-column: 2 !important;
+  min-width: 0 !important;
+}
+
+.doc-date-col {
+  grid-column: 3 !important;
+  white-space: nowrap !important;
+}
+
+.document-row-actions {
+  grid-column: 4 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+  white-space: nowrap !important;
+  flex-wrap: nowrap !important;
+  width: 100% !important;
+}
+
+@media (min-width: 901px) {
+  .document-list-header,
+  .modern-doc-row,
+  .document-row {
+    grid-template-columns: 44px 1fr 150px 190px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* --- C. AUTHENTIC, ALIGNED REAL TAX INVOICE PREVIEW --- */
+.invoice-print-container {
+  width: 100% !important;
+  max-width: 100vw !important;
+  box-sizing: border-box !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding: clamp(14px, 3vw, 32px) 14px 60px !important;
+  margin: 0 auto !important;
+}
+
+.gst-tax-invoice-sheet {
+  width: 860px !important;
+  min-width: 860px !important;
+  max-width: 860px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08) !important;
+  padding: 32px 36px !important;
+  border-radius: 4px !important;
+  color: #0f172a !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+}
+
+[data-theme="dark"] .gst-tax-invoice-sheet,
+body.dark-mode .gst-tax-invoice-sheet {
+  background: #111720 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.5) !important;
+}
+
+.gst-tax-invoice-sheet * {
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+}
+
+.tax-inv-header {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 20px !important;
+  margin-bottom: 20px !important;
+  width: 100% !important;
+}
+
+.inv-brand-cluster {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 16px !important;
+  flex: 1 1 auto !important;
+}
+
+.inv-firm-name {
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.8px !important;
+  white-space: nowrap !important;
+  color: #071a14 !important;
+  margin: 0 0 4px !important;
+}
+
+[data-theme="dark"] .inv-firm-name,
+body.dark-mode .inv-firm-name {
+  color: #ffffff !important;
+}
+
+.inv-firm-tagline {
+  font-size: 9.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.2px !important;
+  color: #b45309 !important;
+  white-space: nowrap !important;
+  margin: 0 0 4px !important;
+}
+
+.inv-title-block {
+  flex-shrink: 0 !important;
+  text-align: right !important;
+}
+
+.tax-inv-meta-grid {
+  display: grid !important;
+  grid-template-columns: 1.2fr 0.8fr !important;
+  gap: 18px !important;
+  margin-bottom: 20px !important;
+  width: 100% !important;
+}
+
+.tax-inv-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  font-size: 11.5px !important;
+}
+
+.tax-inv-totals-grid {
+  display: grid !important;
+  grid-template-columns: 1.15fr 0.85fr !important;
+  gap: 20px !important;
+  margin-bottom: 24px !important;
+  width: 100% !important;
+}
+
+@media (max-width: 768px) {
+  .invoice-action-toolbar {
+    padding: 10px 14px !important;
+  }
+
+  .toolbar-shell {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .toolbar-right {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .toolbar-right .button,
+  .toolbar-shell > .button {
+    flex: 1 1 auto !important;
+    font-size: 11.5px !important;
+    padding: 7px 10px !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+  }
+}
+
+@media print {
+  .invoice-print-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+  .gst-tax-invoice-sheet {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 8mm 10mm !important;
+  }
+}
