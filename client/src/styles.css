@@ -2475,7 +2475,7 @@ a {
 .modern-footer {
   background: linear-gradient(180deg, #071913 0%, #04100c 100%);
   color: #fff;
-  padding-block: 72px 32px;
+  padding-block: 72px 92px;
   border-top: 1px solid rgba(52, 211, 153, 0.15);
 }
 
@@ -2581,20 +2581,51 @@ a {
   color: var(--solar-gold);
 }
 
+.footer-back-to-top-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 36px;
+  margin-bottom: 24px;
+}
+
+.back-to-top-btn,
 .back-to-top-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  color: #a4c2b5;
-  font-weight: 600;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 22px;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  color: #34d399;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
 }
 
+.back-to-top-btn:hover,
 .back-to-top-link:hover {
-  color: #fff;
+  background: #10b981;
+  color: #04120e;
+  border-color: #10b981;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(16, 185, 129, 0.4);
 }
 
 .up-arrow {
   transform: rotate(-90deg);
+  transition: transform 0.2s ease;
+}
+
+.back-to-top-btn:hover .up-arrow,
+.back-to-top-link:hover .up-arrow {
+  transform: rotate(-90deg) translateX(2px);
 }
 
 /* ==========================================================================
@@ -7518,4 +7549,24 @@ body.dark-mode .client-source-pill {
   color: #38bdf8;
   background: rgba(56, 189, 248, 0.12);
   border-color: rgba(56, 189, 248, 0.25);
+}
+
+
+/* --------------------------------------------------------------------------
+   12. FOOTER CLEARANCE & CENTERED BACK TO TOP (NO OVERLAP WITH DOCK)
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .modern-footer {
+    padding-block: 56px 95px !important;
+  }
+  .footer-bottom-bar {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 12px !important;
+  }
+  .footer-back-to-top-row {
+    margin-top: 28px !important;
+    margin-bottom: 20px !important;
+  }
 }

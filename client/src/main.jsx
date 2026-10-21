@@ -1677,13 +1677,24 @@ export default function App() {
             </div>
           </div>
 
+          <div className="footer-back-to-top-row">
+            <a
+              href="#home"
+              onClick={(e) => {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className="back-to-top-btn"
+              aria-label="Scroll back to top of page"
+            >
+              <ArrowRight size={13} className="up-arrow" />
+              <span>Back to Top</span>
+            </a>
+          </div>
+
           <div className="footer-bottom-bar">
             <span>&copy; {new Date().getFullYear()} Shree Shantinath Enterprises. All rights reserved.</span>
             <span className="footer-values">QUALITY &bull; SAFETY &bull; SUSTAINABILITY</span>
-            <a href="#home" className="back-to-top-link">
-              <span>Back to Top</span>
-              <ArrowRight size={12} className="up-arrow" />
-            </a>
           </div>
         </div>
       </footer>
