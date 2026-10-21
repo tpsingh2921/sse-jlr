@@ -69,13 +69,7 @@ async function createInvoicePdf(invoice) {
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdf.embedFont(StandardFonts.HelveticaBold);
   
-  let sealImage = null;
-  try {
-    const sealBytes = await fs.readFile(path.join(__dirname, "public", "images", "company-seal.png"));
-    sealImage = await pdf.embedPng(sealBytes);
-  } catch (err) {
-    console.warn("Could not embed seal in invoice PDF:", err.message);
-  }
+
 
   const width = 595.28;
   const height = 841.89;
@@ -507,17 +501,7 @@ async function createInvoicePdf(invoice) {
     color: darkGreen,
   });
 
-  if (sealImage) {
-    const sealW = 60;
-    const sealH = sealW * (sealImage.height / sealImage.width);
-    page.drawImage(sealImage, {
-      x: width - margin - 14 - sealW,
-      y: signY - sealH - 3,
-      width: sealW,
-      height: sealH,
-      opacity: 0.85,
-    });
-  }
+
 
   page.drawText("Harsh Vardhan", {
     x: width - margin - 14 - boldFont.widthOfTextAtSize("Harsh Vardhan", 8.5),

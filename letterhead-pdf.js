@@ -55,13 +55,7 @@ async function createLetterheadPdf(document) {
   const boldFont = await pdf.embedFont(StandardFonts.HelveticaBold);
   const markFont = await pdf.embedFont(StandardFonts.TimesRomanBold);
 
-  let sealImage = null;
-  try {
-    const sealBytes = await fs.readFile(path.join(__dirname, "public", "images", "company-seal.png"));
-    sealImage = await pdf.embedPng(sealBytes);
-  } catch (err) {
-    console.warn("Could not embed company seal in letterhead PDF:", err.message);
-  }
+
 
   const width = 595.28;
   const height = 841.89;
@@ -373,10 +367,9 @@ async function createLetterheadPdf(document) {
     y -= 6; // Extra paragraph gap
   }
 
-  // Sign-off & Seal Block
-  const sealWidth = 72;
-  const sealHeight = sealImage ? sealWidth * (sealImage.height / sealImage.width) : 72;
-  const neededSignoffSpace = sealHeight + 58;
+  // Sign-off Block (Clean space for physical rubber stamp & signature)
+  const manualStampSpace = 48;
+  const neededSignoffSpace = manualStampSpace + 58;
 
   if (y - neededSignoffSpace < footerTop) {
     addPage();
@@ -387,18 +380,7 @@ async function createLetterheadPdf(document) {
   page.drawText("Yours faithfully,", { x: signoffX, y, size: 8.5, font, color: textMuted });
   y -= 13;
   page.drawText("For SHREE SHANTINATH ENTERPRISES", { x: signoffX, y, size: 8, font: boldFont, color: green });
-  y -= 6;
-
-  if (sealImage) {
-    page.drawImage(sealImage, {
-      x: signoffX + 10,
-      y: y - sealHeight,
-      width: sealWidth,
-      height: sealHeight,
-      opacity: 0.88,
-    });
-  }
-  y -= sealHeight + 6;
+  y -= 6 + manualStampSpace;
 
   page.drawText("Harsh Vardhan", { x: signoffX, y, size: 9.5, font: boldFont, color: textDark });
   y -= 11;

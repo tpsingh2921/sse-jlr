@@ -940,6 +940,8 @@ h1, h2, h3 { font-family: var(--serif); }
 .signoff-seal-container {
   display: flex;
   justify-content: flex-end;
+  height: 50px;
+  min-height: 50px;
   margin: 4px 0;
 }
 
@@ -1677,6 +1679,8 @@ h1, h2, h3 { font-family: var(--serif); }
 .sig-seal-wrap {
   display: flex;
   justify-content: flex-end;
+  height: 50px;
+  min-height: 50px;
   margin: 4px 0;
 }
 
